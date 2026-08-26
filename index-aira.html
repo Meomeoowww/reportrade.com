@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReporTrade — Le rapport du commerce extérieur des marchandises, automatisé</title>
+<meta name="description" content="ReporTrade transforme la microdonnée douanière (SCIM/IMTS) en un rapport institutionnel et bilingue du commerce extérieur des marchandises — souverain, sur site, narré par IA.">
+<link rel="icon" href="mavologo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* Aira palette */
+    --bone:#fafafb; --press:#080808; --obsidian:#111111; --coal:#1f1f1f; --graphite:#2c2c2b;
+    --slate:#444444; --stone:#70706f; --fog:#cbcbcb; --ash:#e3e3e3; --cloud:#ededed;
+    /* Mavo dark inverted surface + single warm accent */
+    --ocean:#002444; --ocean2:#04182b; --amber:#C8852E; --amber-lo:#b9812f;
+    /* on-dark text */
+    --d-ink:#fafafb; --d-mut:#aeb9c6; --d-line:rgba(250,250,251,.14);
+    --display:'Fraunces',Georgia,'Times New Roman',serif;
+    --body:'Inter',-apple-system,system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --maxw:1200px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--body);color:var(--obsidian);background:var(--bone);
+    font-size:16px;line-height:1.5;letter-spacing:-.009em;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+  a{color:var(--coal)}
+  h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.08;margin:0;letter-spacing:-.02em}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  /* editorial eyebrow — Aira: 12px Inter, +0.14em, uppercase */
+  .eyebrow,.kick,.k{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--stone)}
+  .eyebrow .hl,.kick .hl{color:var(--amber-lo)}
+  [data-en]{display:none}
+  body.en [data-fr]{display:none}
+  body.en [data-en]{display:revert}
+  :focus-visible{outline:2.5px solid var(--amber);outline-offset:3px;border-radius:4px}
+
+  /* header */
+  header{position:sticky;top:0;z-index:40;background:rgba(250,250,251,.86);backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--ash)}
+  .bar{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .word{font-family:var(--display);font-weight:600;font-size:23px;letter-spacing:-.03em;color:var(--obsidian)}
+  .word .b{color:var(--coal)}
+  /* pill lang toggle */
+  .langs{display:inline-flex;border:1px solid var(--ash);border-radius:999px;padding:3px;background:#fff}
+  .langs button{font-family:var(--body);font-size:12px;font-weight:600;letter-spacing:.04em;border:0;
+    background:transparent;color:var(--stone);padding:6px 14px;cursor:pointer;border-radius:999px;transition:.15s}
+  .langs button.on{background:var(--obsidian);color:var(--bone)}
+
+  /* hero — full-bleed warm-dark, floating deliverable (Aira composition) */
+  .hero{position:relative;color:var(--d-ink);overflow:hidden;
+    background:
+      radial-gradient(120% 130% at 80% 12%, rgba(200,133,46,.30), transparent 52%),
+      radial-gradient(90% 120% at 8% 100%, rgba(200,133,46,.10), transparent 60%),
+      linear-gradient(160deg, #06131f 0%, #03080f 70%)}
+  .hero-inner{padding:96px 0 104px}
+  .hero-grid{display:grid;grid-template-columns:40% 1fr;gap:64px;align-items:center}
+  @media(max-width:940px){.hero-grid{grid-template-columns:1fr;gap:48px}.hero-inner{padding:72px 0 80px}}
+  .hero .eyebrow{color:var(--fog)}
+  .hero .eyebrow .hl{color:var(--amber)}
+  .hero h1{font-size:clamp(46px,6.2vw,72px);font-weight:600;margin:22px 0 26px;max-width:14ch;
+    color:var(--bone);letter-spacing:-.024em;line-height:1.0}
+  .hero h1 .hl{font-style:italic;font-weight:500;color:var(--amber)}
+  .hero .lead{font-size:clamp(17px,1.6vw,20px);line-height:1.55;color:var(--d-mut);max-width:480px;margin:0 0 36px}
+  .hero .lead strong{color:var(--bone);font-weight:600}
+  .cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  /* hero atlas rendered as a LIGHT floating card (Aira surface inversion) */
+  .hero .atlas{background:#fff;border:1px solid rgba(0,0,0,.05);transform:rotate(-1.3deg);
+    box-shadow:rgba(0,0,0,.5) 0 44px 100px -24px, rgba(0,0,0,.28) 0 10px 30px -8px}
+  @media(max-width:940px){.hero .atlas{transform:none}}
+  .hero .atlas .ghead{color:var(--stone);border-color:var(--ash)}
+  .hero .atlas .gfoot{color:var(--stone);border-color:var(--ash)}
+  .hero .atlas .live{background:var(--amber-lo)}
+  .hero .atlas svg{background:transparent}
+  .hero .atlas .land{fill:rgba(17,17,17,.045);stroke:rgba(17,17,17,.28)}
+  .hero .atlas .arc{stroke:var(--amber-lo)}
+  .hero .atlas .node,.hero .atlas .node-halo{fill:var(--amber-lo)}
+  .hero .atlas .hub{fill:#fff;stroke:var(--amber-lo)}
+  .hero .atlas .nlab{fill:var(--stone)}
+  .hero .atlas .hublab{fill:var(--coal)}
+  .hero .atlas .gfoot span[style]{color:var(--amber-lo)!important}
+  /* Aira pill button */
+  .btn{display:inline-block;font-family:var(--body);font-weight:500;text-decoration:none;
+    padding:13px 26px;border-radius:999px;font-size:15px;transition:transform .14s ease,background .14s}
+  .btn-primary{background:var(--bone);color:var(--obsidian)}
+  .btn-primary:hover{background:#fff;transform:translateY(-1px)}
+  .btn-ghost{color:var(--d-ink);font-weight:500;text-decoration:none;font-size:15px;
+    border:1px solid var(--d-line);padding:12px 22px;border-radius:999px}
+  .btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
+
+  /* dark inverted atlas card */
+  .atlas{position:relative;border-radius:18px;overflow:hidden;background:var(--ocean);
+    box-shadow:rgba(0,0,0,.18) 0 20px 60px 0, rgba(0,0,0,.08) 0 4px 16px 0}
+  .atlas .ghead,.atlas .gfoot{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--d-mut);padding:15px 20px}
+  .atlas .gfoot{display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid var(--d-line)}
+  .atlas .ghead{border-bottom:1px solid var(--d-line);display:flex;align-items:center;gap:10px}
+  .atlas .live{width:7px;height:7px;border-radius:50%;background:var(--amber);
+    box-shadow:0 0 0 0 rgba(200,133,46,.6);animation:pulse 2.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(200,133,46,.5)}70%{box-shadow:0 0 0 8px rgba(200,133,46,0)}100%{box-shadow:0 0 0 0 rgba(200,133,46,0)}}
+  .atlas svg{display:block;width:100%;height:auto}
+  .land{fill:rgba(250,250,251,.05);stroke:rgba(250,250,251,.28);stroke-width:.7;stroke-linejoin:round;vector-effect:non-scaling-stroke}
+  .arc{fill:none;stroke:var(--amber);stroke-width:1.5;stroke-linecap:round;opacity:.85;
+    stroke-dasharray:5 9;animation:flow 2.6s linear infinite, draw 1s ease forwards}
+  .arc.a2{animation-delay:0s,.1s}.arc.a3{animation-delay:0s,.2s}.arc.a4{animation-delay:0s,.3s}
+  .arc.a5{animation-delay:0s,.4s}.arc.a6{animation-delay:0s,.5s}.arc.a7{animation-delay:0s,.6s}.arc.a8{animation-delay:0s,.7s}
+  @keyframes flow{to{stroke-dashoffset:-14}}
+  @keyframes draw{from{opacity:0}to{opacity:.85}}
+  .node{fill:var(--amber)}
+  .node-halo{fill:var(--amber);opacity:.16;animation:halo 3s ease-in-out infinite}
+  @keyframes halo{0%,100%{opacity:.09}50%{opacity:.24}}
+  .hub{fill:#fff;stroke:var(--amber);stroke-width:2.5}
+  .nlab{fill:var(--d-mut);font-family:var(--mono);font-size:12px;font-weight:500;letter-spacing:.06em}
+  .hublab{fill:#fff;font-family:var(--mono);font-size:12px;font-weight:600}
+  @media(prefers-reduced-motion:reduce){.arc{animation:none;opacity:.85}.node-halo{animation:none}.atlas .live{animation:none}}
+
+  /* pipeline rail */
+  .rail{border-top:1px solid var(--ash);border-bottom:1px solid var(--ash);padding:28px 0;background:#fff}
+  .rail .wrap{display:flex;flex-wrap:wrap}
+  .step{flex:1 1 200px;display:flex;gap:16px;align-items:flex-start;padding:8px 26px;position:relative}
+  .step+.step::before{content:"";position:absolute;left:0;top:12px;bottom:12px;width:1px;background:var(--ash)}
+  @media(max-width:680px){.step+.step::before{display:none}}
+  .step .n{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--amber-lo);flex:none}
+  .step b{display:block;font-family:var(--display);font-weight:600;font-size:17px;color:var(--coal);margin-bottom:3px}
+  .step span{font-size:13.5px;color:var(--stone)}
+  .step .out b{color:var(--amber-lo)}
+
+  section{padding:112px 0}
+  h2{font-size:clamp(32px,4.4vw,50px);color:var(--coal);margin:0;max-width:22ch;letter-spacing:-.02em}
+  .sub{color:var(--stone);max-width:600px;margin:18px 0 0;font-size:18px;line-height:1.55}
+  /* centered editorial intro — Aira vertical axis */
+  .intro{max-width:740px;margin:0 auto 64px;text-align:center;display:flex;flex-direction:column;align-items:center}
+  .intro h2{margin-top:14px}
+  .intro .sub{margin-left:auto;margin-right:auto}
+
+  /* capability grid — flat cards, ash hairline, 16px */
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+  .cap{background:#fff;border:1px solid var(--ash);border-radius:16px;padding:30px 28px;transition:border-color .16s}
+  .cap:hover{border-color:var(--fog)}
+  .cap .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+  .cap .ic svg{width:28px;height:28px;fill:none;stroke:var(--coal);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .cap .ic svg .t{stroke:var(--amber-lo)}
+  .cap .ix{font-family:var(--mono);font-size:11px;color:var(--stone);letter-spacing:.12em}
+  .cap h3{font-size:20px;font-family:var(--display);font-weight:600;margin-bottom:9px;color:var(--obsidian)}
+  .cap p{margin:0;color:var(--stone);font-size:15px;line-height:1.5}
+
+  /* specimen band */
+  .band{background:var(--cloud)}
+  .specimen{border-radius:16px;overflow:hidden;border:1px solid var(--ash);
+    box-shadow:rgba(0,0,0,.08) 0 1px 20px 3px;background:#fff;max-width:800px;margin:0 auto}
+  .specimen .tabbar{height:42px;background:var(--ocean);display:flex;align-items:center;gap:7px;padding:0 16px}
+  .specimen .dot{width:10px;height:10px;border-radius:50%;background:rgba(250,250,251,.26)}
+  .specimen .file{margin-left:12px;font-family:var(--mono);font-size:12px;color:var(--d-mut)}
+  .specimen .stamp{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--amber);
+    border:1px solid rgba(200,133,46,.5);border-radius:999px;padding:3px 10px}
+  .screen{position:relative;aspect-ratio:16/11;overflow:hidden;background:#fff}
+  .screen .slide{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;opacity:0;animation:reel 21s infinite}
+  .screen .slide:nth-child(2){animation-delay:7s}.screen .slide:nth-child(3){animation-delay:14s}
+  @keyframes reel{0%{opacity:0;object-position:50% 0}4%{opacity:1}28%{opacity:1;object-position:50% 100%}38%{opacity:0;object-position:50% 100%}100%{opacity:0}}
+  .dots{display:flex;gap:8px;justify-content:center;margin-top:20px}
+  .dots i{width:7px;height:7px;border-radius:999px;background:var(--fog);animation:tick 21s infinite}
+  .dots i:nth-child(2){animation-delay:7s}.dots i:nth-child(3){animation-delay:14s}
+  @keyframes tick{0%,33%{background:var(--amber-lo)}34%,100%{background:var(--fog)}}
+
+  /* audience */
+  .aud{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .aud div{background:#fff;border:1px solid var(--ash);border-radius:16px;padding:24px;border-left:3px solid var(--amber)}
+  .aud b{display:block;font-family:var(--display);font-size:19px;font-weight:600;color:var(--coal);margin-bottom:7px}
+  .aud span{color:var(--stone);font-size:14.5px;line-height:1.5}
+  .bespoke{margin-top:28px;background:var(--ocean);color:var(--d-ink);border-radius:16px;padding:24px 28px;
+    display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+  .bespoke .tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;background:var(--amber);color:#1a1206;
+    padding:5px 12px;border-radius:999px;white-space:nowrap;font-weight:600}
+  .bespoke strong{color:#fff}
+
+  /* tracks */
+  .tracks{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.tracks{grid-template-columns:1fr}}
+  .track{border:1px solid var(--ash);border-radius:16px;padding:34px;background:#fff}
+  .track h3{font-size:25px;margin:12px 0 18px;color:var(--coal)}
+  .track ul{margin:0;padding:0;list-style:none}
+  .track li{margin:13px 0;padding-left:28px;position:relative;color:var(--stone);line-height:1.5}
+  .track li::before{content:"—";position:absolute;left:0;color:var(--amber-lo);font-weight:600}
+
+  /* proof — dark inverted broadsheet-at-midnight */
+  .proof{background:var(--ocean);color:var(--d-ink)}
+  .proof .wrap{max-width:940px}
+  .proof .kick{color:var(--amber)}
+  .proof h2{color:var(--bone);max-width:20ch}
+  .proof h2 em{font-style:italic;font-weight:500;color:var(--amber)}
+  .recon{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--d-line);
+    border:1px solid var(--d-line);border-radius:16px;overflow:hidden;margin:38px 0 24px}
+  @media(max-width:680px){.recon{grid-template-columns:1fr}}
+  .recon div{background:var(--ocean2);padding:24px 26px}
+  .recon .l{font-family:var(--body);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--d-mut);font-weight:600}
+  .recon .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:22px;color:var(--bone);margin-top:10px;font-weight:600}
+  .recon .v.s{color:var(--amber)}
+  .recon .m{font-family:var(--mono);font-size:11px;color:var(--amber);margin-top:7px;letter-spacing:.06em}
+  .proof .note{color:var(--d-mut);font-size:15px;max-width:780px;line-height:1.6}
+  .proof .note strong{color:var(--bone)}
+  .proof .note em{color:var(--fog)}
+
+  /* final — light band, closes on calm */
+  .final{background:var(--bone);text-align:center;border-top:1px solid var(--ash)}
+  .final h2{color:var(--coal);max-width:24ch;margin:0 auto 18px}
+  .final p{color:var(--stone);max-width:560px;margin:0 auto 32px;font-size:18px;line-height:1.5}
+  .final .btn-primary{background:var(--obsidian);color:var(--bone)}
+  .final .btn-primary:hover{background:#000}
+  .final .emails{margin-top:22px;font-family:var(--mono);font-size:13px;color:var(--stone)}
+
+  footer{padding:38px 0;border-top:1px solid var(--ash);color:var(--stone);font-size:14px;background:var(--bone)}
+  .bymavo{display:inline-flex;align-items:baseline;gap:6px}
+  .mavoword{font-family:var(--display);font-weight:600;font-size:16px;letter-spacing:-.02em;color:var(--obsidian)}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center}
+  footer .word{color:var(--coal);font-size:18px}
+  footer .word .b{color:var(--stone)}
+
+  .rise{opacity:0;transform:translateY(16px);animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .d1{animation-delay:.04s}.d2{animation-delay:.12s}.d3{animation-delay:.2s}.d4{animation-delay:.28s}.d5{animation-delay:.36s}
+  @media(prefers-reduced-motion:reduce){.rise{animation:none;opacity:1;transform:none}.screen .slide{animation:none}.screen .slide:first-child{opacity:1}.dots i{animation:none}}
+</style>
+</head>
+<body class="fr">
+
+<header><div class="wrap bar">
+  <div class="word"><span class="a">Repor</span><span class="b">Trade</span></div>
+  <div class="langs">
+    <button id="bfr" class="on" onclick="setLang('fr')">FR</button>
+    <button id="ben" onclick="setLang('en')">EN</button>
+  </div>
+</div></header>
+
+<!-- HERO -->
+<div class="hero"><div class="hero-inner"><div class="wrap hero-grid">
+  <div>
+    <div class="eyebrow rise d1"><span data-fr>Données douanières (SCIM/IMTS) → rapport institutionnel</span><span data-en>Customs data (IMTS) → institutional report</span></div>
+    <h1 class="rise d2">
+      <span data-fr>Le rapport du commerce extérieur des marchandises, <span class="hl">automatisé</span>.</span>
+      <span data-en>Your international merchandise-trade report, <span class="hl">automated</span>.</span>
+    </h1>
+    <p class="lead rise d3">
+      <span data-fr>De la microdonnée brute à un rapport narré, bilingue et de niveau analyste — généré <strong>100&nbsp;% sur site</strong>. Aucune microdonnée ne quitte votre infrastructure.</span>
+      <span data-en>From raw microdata to a narrated, bilingual, analyst-grade report — generated <strong>fully on-premise</strong>. No microdata ever leaves your infrastructure.</span>
+    </p>
+    <div class="cta rise d4">
+      <a class="btn btn-primary" href="#contact"><span data-fr>Demander un pilote</span><span data-en>Request a pilot</span></a>
+      <a class="btn-ghost" href="#how"><span data-fr>Comment ça marche ↓</span><span data-en>How it works ↓</span></a>
+    </div>
+  </div>
+
+  <div class="atlas rise d5">
+    <div class="ghead"><span class="live"></span><span data-fr>Flux d'exportation · T1 2024 · 256 683 lignes</span><span data-en>Export flows · Q1 2024 · 256,683 rows</span></div>
+    <svg viewBox="0 0 720 360" role="img" aria-label="Carte du monde et flux d'exportation du pays déclarant vers ses partenaires">
+      <path class="land" d="M224 288 L227 289 L230 289 L229 290 L227 290 L225 291 L222 291 L220 290 L218 290 L215 289 L213 288 L211 286 L215 287 L218 288 L219 287 L221 285 L223 285 L224 286 L224 288 Z M243 282 L244 283 L241 284 L239 285 L238 284 L240 282 L242 283 L243 282 Z M651 262 L653 262 L655 262 L657 262 L657 264 L656 265 L655 266 L654 267 L652 267 L651 265 L649 262 L651 262 Z M706 262 L708 262 L708 264 L706 266 L705 267 L706 268 L703 268 L702 270 L701 272 L700 273 L697 273 L693 272 L694 270 L697 268 L699 267 L701 266 L702 265 L703 264 L704 263 L706 261 L706 262 Z M709 252 L711 254 L712 255 L714 256 L716 255 L717 257 L716 258 L714 258 L714 260 L713 261 L712 263 L710 263 L710 261 L708 259 L709 258 L709 256 L709 253 L708 252 L706 250 L705 249 L707 250 L709 251 L709 252 Z M694 224 L693 225 L692 224 L691 223 L690 222 L688 221 L689 220 L690 221 L691 222 L693 223 L694 224 Z M460 207 L460 210 L461 211 L460 212 L459 211 L460 213 L459 214 L459 216 L458 218 L457 221 L456 225 L455 228 L454 230 L451 231 L448 230 L447 227 L447 224 L448 222 L449 220 L448 218 L448 215 L449 214 L449 212 L451 212 L453 212 L454 210 L455 209 L456 208 L458 206 L458 204 L459 205 L460 206 L460 207 Z M647 208 L648 209 L649 208 L650 209 L651 210 L651 213 L652 214 L652 216 L653 218 L655 219 L656 220 L658 221 L659 223 L659 225 L660 224 L661 225 L662 227 L663 228 L664 229 L666 231 L666 233 L666 235 L667 236 L667 238 L666 241 L666 243 L665 245 L663 246 L663 248 L662 249 L661 250 L660 253 L660 255 L659 256 L657 256 L655 256 L654 257 L653 258 L651 257 L650 256 L647 258 L645 257 L643 257 L641 256 L640 255 L640 253 L639 252 L638 251 L636 251 L637 250 L636 249 L635 250 L634 251 L635 249 L636 247 L634 248 L632 250 L630 249 L629 246 L626 244 L623 243 L619 243 L616 244 L614 245 L612 244 L610 245 L608 246 L607 248 L604 248 L601 248 L599 249 L597 249 L596 250 L593 250 L591 249 L590 248 L591 247 L592 244 L591 243 L590 241 L590 239 L589 238 L588 236 L587 233 L587 231 L588 232 L587 230 L587 228 L588 226 L587 225 L588 224 L591 223 L592 222 L593 221 L595 221 L598 221 L599 220 L602 219 L603 218 L604 216 L605 215 L606 213 L607 215 L608 214 L607 213 L608 212 L609 213 L609 211 L610 210 L611 209 L612 208 L614 208 L616 209 L617 210 L619 210 L620 207 L621 205 L622 204 L623 205 L625 204 L624 203 L625 202 L626 203 L627 204 L629 204 L631 204 L633 204 L634 205 L633 206 L632 207 L631 209 L633 211 L634 212 L637 214 L639 215 L642 215 L643 213 L643 210 L643 207 L644 205 L644 203 L645 201 L646 202 L646 204 L647 206 L647 208 Z M609 200 L607 201 L608 199 L610 198 L612 197 L614 197 L612 198 L610 199 L609 200 Z M606 196 L603 198 L600 198 L601 196 L603 197 L606 196 Z M577 194 L581 194 L582 193 L585 194 L586 195 L589 196 L591 197 L589 198 L587 197 L585 197 L583 197 L581 196 L579 195 L577 195 L573 195 L571 194 L572 192 L575 192 L576 193 L577 194 Z M664 191 L663 192 L660 193 L658 192 L657 191 L659 191 L660 190 L662 191 L663 190 L663 188 L665 189 L664 191 Z M621 186 L622 188 L620 187 L618 187 L616 187 L619 186 L621 186 Z M666 189 L665 188 L664 187 L663 186 L661 185 L663 186 L665 187 L666 188 L666 189 Z M628 182 L629 186 L631 187 L633 185 L635 183 L637 183 L638 184 L640 185 L642 185 L645 187 L649 188 L651 189 L652 190 L655 192 L656 193 L654 193 L654 195 L656 196 L657 198 L659 198 L660 199 L659 200 L662 201 L660 201 L658 201 L656 200 L654 199 L653 198 L652 196 L649 195 L648 196 L647 198 L645 199 L644 198 L642 198 L640 197 L638 196 L635 197 L636 195 L637 192 L636 191 L632 189 L630 189 L627 187 L626 188 L624 186 L626 185 L628 185 L627 184 L624 184 L622 183 L621 182 L624 181 L628 182 Z M610 177 L609 179 L607 180 L605 179 L602 179 L600 180 L602 183 L603 182 L607 181 L606 182 L605 183 L603 184 L605 186 L606 189 L606 191 L604 191 L605 189 L603 190 L603 188 L602 187 L602 185 L601 186 L601 188 L601 191 L599 191 L599 189 L599 187 L598 186 L598 184 L599 183 L600 180 L602 177 L603 178 L606 178 L608 178 L610 177 Z M617 178 L616 179 L616 181 L617 182 L615 181 L615 178 L615 176 L616 177 L617 178 Z M572 192 L569 192 L568 190 L565 188 L564 187 L563 186 L562 184 L560 181 L559 180 L558 178 L557 176 L555 175 L554 173 L553 172 L551 170 L552 169 L555 170 L557 171 L558 173 L559 174 L561 176 L563 176 L565 177 L566 179 L568 180 L567 181 L568 182 L569 184 L570 185 L572 186 L572 189 L572 192 Z M596 176 L598 178 L596 178 L595 180 L595 182 L593 183 L593 185 L592 188 L590 188 L589 187 L587 186 L584 187 L583 186 L580 186 L580 183 L578 181 L578 179 L578 177 L579 176 L581 177 L582 176 L583 175 L584 174 L586 174 L587 172 L588 171 L589 170 L591 169 L592 168 L593 166 L595 167 L597 169 L598 170 L597 171 L596 172 L595 174 L596 175 L596 176 Z M613 163 L613 166 L612 167 L612 165 L611 166 L611 168 L608 168 L608 166 L607 164 L606 165 L604 166 L605 164 L606 163 L608 164 L609 163 L610 162 L611 160 L612 161 L613 162 L613 163 Z M522 168 L520 166 L519 164 L520 160 L522 161 L523 163 L524 165 L523 167 L522 168 Z M597 161 L594 163 L595 162 L597 161 L598 159 L599 157 L599 159 L598 160 L597 161 Z M611 156 L612 158 L610 157 L611 159 L610 160 L610 158 L609 157 L610 156 L609 155 L611 156 Z M603 143 L604 144 L605 146 L603 148 L603 150 L605 152 L608 152 L608 154 L606 153 L605 154 L604 152 L602 153 L601 152 L602 151 L601 150 L600 149 L600 147 L601 148 L601 145 L601 143 L603 143 Z M215 140 L217 141 L218 140 L220 141 L222 141 L221 142 L223 143 L221 143 L220 144 L219 143 L217 145 L215 144 L213 144 L211 143 L213 143 L215 143 L214 142 L213 141 L214 140 L215 140 Z M581 143 L579 144 L577 143 L577 141 L578 140 L580 140 L582 140 L581 141 L581 143 Z M201 134 L203 135 L206 137 L207 138 L209 138 L210 139 L212 139 L211 140 L209 140 L207 140 L204 140 L206 139 L204 139 L203 138 L201 137 L200 136 L196 136 L194 135 L193 136 L191 136 L192 135 L193 134 L195 134 L197 134 L199 134 L201 134 Z M602 134 L601 136 L600 134 L601 131 L603 129 L604 130 L602 134 Z M407 109 L410 109 L412 109 L411 110 L413 109 L412 110 L409 110 L407 109 Z M391 104 L390 105 L391 106 L390 107 L389 106 L385 105 L387 104 L390 104 L391 104 Z M642 106 L641 107 L642 108 L641 110 L638 111 L634 111 L632 113 L630 112 L627 111 L624 112 L622 112 L624 114 L623 117 L621 118 L620 117 L621 115 L619 113 L621 113 L622 112 L624 111 L625 109 L629 109 L631 109 L633 105 L635 106 L638 104 L640 101 L640 99 L641 98 L643 97 L644 100 L644 102 L642 104 L642 106 Z M648 92 L651 91 L651 93 L648 94 L646 96 L643 95 L642 97 L640 97 L640 95 L641 93 L643 93 L643 90 L644 89 L646 91 L648 92 Z M236 82 L233 81 L231 80 L234 81 L236 81 L236 82 Z M113 83 L109 82 L106 81 L104 80 L103 79 L105 79 L107 79 L109 80 L110 81 L112 82 L113 83 Z M248 79 L246 80 L248 80 L250 81 L253 82 L252 83 L254 83 L255 85 L254 87 L252 86 L252 84 L249 86 L247 85 L245 85 L241 85 L242 83 L243 82 L245 79 L247 77 L249 77 L248 79 Z M647 79 L649 82 L646 81 L645 84 L647 86 L647 88 L645 87 L644 88 L644 86 L644 84 L644 82 L644 78 L643 76 L643 73 L645 72 L646 73 L647 75 L646 76 L647 79 Z M346 75 L343 77 L340 76 L342 74 L341 72 L343 71 L345 70 L347 70 L349 71 L348 72 L348 74 L346 75 Z M54 66 L52 67 L51 66 L52 64 L54 64 L56 65 L54 66 Z M354 63 L352 65 L354 65 L356 65 L354 68 L356 68 L358 71 L360 73 L361 74 L363 75 L362 76 L363 77 L361 78 L358 78 L355 79 L353 80 L351 79 L350 80 L348 80 L351 78 L353 77 L350 77 L349 76 L352 75 L350 74 L351 73 L354 73 L353 71 L350 70 L351 69 L350 68 L349 69 L349 67 L348 66 L348 64 L350 63 L352 63 L354 63 Z M17 52 L18 53 L21 53 L23 53 L22 54 L19 54 L17 53 L17 52 Z M190 49 L192 50 L194 50 L197 51 L198 52 L200 53 L198 53 L195 53 L194 52 L192 53 L189 54 L188 53 L186 53 L187 52 L188 50 L190 49 Z M331 47 L333 50 L330 51 L324 53 L320 53 L314 52 L316 51 L312 50 L316 50 L311 49 L313 47 L316 47 L319 49 L322 47 L324 48 L328 47 L331 47 Z M10 47 L11 46 L16 46 L20 48 L18 49 L15 49 L15 51 L12 51 L8 50 L6 49 L3 49 L0 48 L1 49 L0 50 L0 42 L5 44 L10 46 L10 47 Z M169 42 L167 42 L165 42 L163 42 L160 41 L162 41 L164 40 L166 40 L167 41 L169 42 Z M3 38 L0 38 L2 37 L5 37 L3 38 Z M179 41 L179 43 L182 41 L184 43 L183 44 L185 46 L187 44 L189 42 L189 40 L192 40 L195 41 L197 42 L198 43 L196 44 L197 45 L193 47 L191 47 L188 47 L186 50 L183 52 L180 52 L179 53 L178 54 L176 54 L174 56 L172 58 L171 60 L171 62 L174 62 L174 64 L175 66 L178 65 L182 66 L184 67 L185 68 L188 69 L190 69 L193 70 L195 70 L196 73 L197 76 L200 78 L202 77 L203 75 L202 72 L200 71 L204 70 L206 68 L207 67 L205 64 L203 62 L205 60 L204 58 L204 55 L209 55 L211 56 L212 55 L214 56 L217 57 L221 58 L221 60 L221 62 L223 62 L225 64 L228 62 L230 60 L231 59 L232 61 L235 64 L237 66 L236 67 L239 68 L241 70 L244 70 L245 71 L246 72 L248 73 L249 76 L247 76 L246 77 L242 78 L240 80 L237 80 L232 79 L229 79 L227 80 L226 81 L223 82 L220 85 L218 86 L223 83 L227 82 L230 82 L232 83 L230 84 L230 86 L231 88 L234 89 L237 88 L239 86 L240 88 L238 89 L233 91 L229 93 L228 91 L231 89 L228 89 L226 90 L224 91 L222 92 L220 93 L219 94 L218 95 L219 96 L220 97 L218 97 L216 97 L214 98 L216 98 L213 99 L212 98 L211 99 L212 101 L210 102 L209 101 L210 102 L209 104 L208 106 L209 104 L208 103 L207 102 L207 104 L207 106 L208 107 L209 109 L207 110 L205 111 L204 112 L202 113 L199 115 L198 116 L197 117 L197 119 L198 122 L199 123 L200 126 L200 128 L199 130 L197 129 L196 127 L195 125 L194 124 L195 123 L194 122 L193 120 L190 121 L188 120 L187 119 L185 119 L183 119 L181 120 L182 121 L181 122 L180 121 L178 122 L177 121 L175 121 L174 120 L172 121 L169 123 L167 123 L166 124 L165 125 L165 127 L166 128 L165 130 L164 134 L165 136 L166 139 L167 140 L168 142 L170 143 L171 144 L173 143 L176 143 L177 142 L178 141 L179 140 L179 138 L181 137 L183 137 L185 137 L186 138 L185 139 L185 141 L184 143 L183 145 L184 146 L183 147 L182 148 L183 149 L184 148 L186 148 L188 148 L190 148 L192 149 L194 150 L193 151 L193 153 L193 155 L193 157 L192 158 L193 159 L194 160 L195 161 L196 162 L198 162 L200 161 L202 161 L204 162 L205 163 L208 161 L209 160 L210 158 L212 157 L213 158 L215 157 L216 156 L217 155 L218 156 L217 157 L217 159 L216 160 L217 162 L218 160 L217 158 L220 157 L219 156 L221 157 L224 158 L225 159 L228 159 L229 160 L231 159 L234 159 L236 159 L235 160 L237 160 L238 161 L239 163 L242 164 L243 165 L244 166 L245 167 L246 168 L248 168 L250 168 L252 168 L253 169 L256 171 L257 172 L258 173 L259 176 L260 177 L259 180 L263 180 L263 182 L264 181 L267 182 L270 183 L271 184 L273 185 L277 186 L280 186 L283 187 L286 190 L289 190 L290 191 L290 193 L291 195 L290 198 L289 199 L286 202 L285 204 L283 206 L282 208 L282 211 L282 214 L281 216 L280 219 L278 222 L278 224 L276 225 L274 226 L271 227 L269 228 L267 228 L265 230 L263 232 L263 234 L263 236 L262 237 L261 238 L259 242 L257 244 L255 244 L255 246 L253 248 L252 249 L250 250 L248 250 L246 249 L244 249 L243 248 L246 251 L245 252 L247 253 L246 254 L245 256 L242 257 L238 258 L235 258 L236 259 L235 260 L236 261 L235 262 L232 262 L230 262 L230 264 L231 265 L232 264 L233 265 L231 266 L230 267 L229 269 L227 270 L225 271 L225 273 L227 274 L229 274 L228 276 L226 277 L224 280 L223 281 L222 284 L224 285 L221 285 L218 286 L218 288 L215 287 L213 286 L210 285 L209 283 L210 282 L209 281 L209 277 L210 275 L212 274 L209 273 L211 272 L211 268 L214 269 L215 265 L213 264 L213 267 L211 266 L212 264 L213 260 L214 259 L213 257 L213 254 L215 251 L216 248 L217 245 L217 242 L217 240 L217 238 L218 235 L219 231 L219 227 L220 223 L220 220 L219 217 L217 216 L213 213 L210 211 L208 209 L207 208 L206 204 L204 201 L202 197 L201 196 L200 194 L199 193 L198 192 L197 189 L198 188 L199 187 L200 185 L198 184 L198 182 L199 181 L200 179 L201 178 L202 177 L203 176 L204 175 L205 173 L206 172 L205 171 L205 169 L205 167 L204 166 L203 164 L204 163 L202 162 L200 163 L199 164 L200 165 L198 166 L198 164 L197 165 L196 164 L195 163 L194 164 L193 163 L192 161 L191 160 L190 161 L189 160 L188 159 L189 158 L188 157 L187 156 L186 155 L185 154 L184 153 L183 154 L182 153 L180 153 L179 152 L177 152 L176 151 L173 149 L172 148 L169 148 L167 149 L165 148 L162 147 L158 146 L157 145 L156 144 L153 143 L150 141 L149 140 L149 138 L149 136 L148 134 L146 132 L144 131 L143 130 L141 129 L141 127 L139 126 L139 124 L136 123 L135 121 L134 120 L134 118 L132 117 L130 116 L130 118 L131 120 L133 122 L134 123 L135 125 L136 126 L137 127 L137 129 L139 130 L140 131 L141 133 L140 134 L139 133 L138 132 L137 131 L136 129 L135 128 L134 127 L133 126 L131 126 L130 125 L132 124 L130 121 L128 120 L127 118 L126 115 L125 114 L124 113 L123 112 L121 111 L119 111 L117 108 L115 105 L114 104 L113 102 L112 100 L111 99 L112 98 L112 96 L111 94 L112 93 L112 89 L112 86 L111 85 L111 83 L114 84 L115 86 L115 84 L114 82 L110 80 L109 79 L105 78 L104 77 L104 75 L102 74 L101 73 L99 71 L98 70 L96 69 L96 67 L93 66 L92 64 L90 64 L87 64 L84 63 L80 61 L78 61 L75 60 L72 60 L68 59 L66 58 L64 59 L63 60 L61 61 L59 61 L57 62 L56 61 L57 59 L59 58 L56 59 L55 60 L52 61 L53 62 L52 64 L49 65 L47 65 L44 67 L43 68 L41 69 L39 69 L36 70 L34 71 L30 71 L32 70 L34 69 L36 68 L39 68 L40 67 L43 66 L45 65 L45 63 L46 62 L44 63 L43 62 L42 63 L41 62 L40 63 L39 62 L37 63 L36 61 L35 60 L32 60 L31 59 L29 59 L28 57 L29 56 L30 55 L31 54 L34 54 L35 53 L37 53 L38 52 L37 51 L38 50 L35 51 L33 51 L30 51 L27 51 L26 50 L24 49 L27 48 L31 47 L33 47 L32 48 L37 48 L35 47 L33 46 L31 45 L29 44 L26 43 L28 42 L31 42 L34 41 L36 39 L38 39 L42 38 L44 38 L47 37 L50 38 L51 39 L52 38 L56 38 L55 39 L59 39 L61 39 L65 40 L69 40 L73 40 L76 40 L78 41 L82 41 L85 42 L87 42 L89 41 L91 41 L94 41 L97 40 L100 40 L102 40 L104 39 L108 41 L111 40 L114 41 L115 40 L117 40 L120 41 L125 42 L128 42 L130 42 L132 43 L129 44 L133 45 L138 44 L140 44 L142 45 L144 44 L142 43 L144 43 L146 43 L148 42 L149 43 L151 44 L154 44 L157 45 L160 44 L163 44 L165 43 L168 44 L171 44 L172 42 L169 41 L167 40 L167 38 L170 36 L172 36 L174 37 L177 40 L175 41 L179 41 Z"/>
+      <path class="arc" d="M160 60 Q150 82 164 102"/>
+      <path class="arc a2" d="M160 60 Q138 98 156 134"/>
+      <path class="arc a3" d="M160 60 Q190 120 258 200"/>
+      <path class="arc a4" d="M160 60 Q258 22 356 72"/>
+      <path class="arc a5" d="M160 60 Q270 20 380 78"/>
+      <path class="arc a6" d="M160 60 Q340 36 516 136"/>
+      <path class="arc a7" d="M160 60 Q366 18 568 110"/>
+      <path class="arc a8" d="M160 60 Q404 12 636 106"/>
+      <g><circle class="node-halo" cx="164" cy="102" r="11"/><circle class="node" cx="164" cy="102" r="4"/><text class="nlab" x="174" y="106">USA</text></g>
+      <g><circle class="node-halo" cx="156" cy="134" r="9"/><circle class="node" cx="156" cy="134" r="3.4"/><text class="nlab" x="164" y="138">MEX</text></g>
+      <g><circle class="node-halo" cx="258" cy="200" r="8"/><circle class="node" cx="258" cy="200" r="3.2"/><text class="nlab" x="266" y="204">BRA</text></g>
+      <g><circle class="node-halo" cx="356" cy="72" r="8"/><circle class="node" cx="356" cy="72" r="3.2"/><text class="nlab" x="348" y="66" text-anchor="end">GBR</text></g>
+      <g><circle class="node-halo" cx="380" cy="78" r="8"/><circle class="node" cx="380" cy="78" r="3.2"/><text class="nlab" x="388" y="76">DEU</text></g>
+      <g><circle class="node-halo" cx="516" cy="136" r="8"/><circle class="node" cx="516" cy="136" r="3.2"/><text class="nlab" x="524" y="140">IND</text></g>
+      <g><circle class="node-halo" cx="568" cy="110" r="10"/><circle class="node" cx="568" cy="110" r="3.8"/><text class="nlab" x="576" y="114">CHN</text></g>
+      <g><circle class="node-halo" cx="636" cy="106" r="8"/><circle class="node" cx="636" cy="106" r="3.2"/><text class="nlab" x="628" y="98" text-anchor="end">JPN</text></g>
+      <circle class="hub" cx="160" cy="60" r="6.5"/>
+      <text class="hublab" x="150" y="52" text-anchor="end">CAN</text>
+    </svg>
+    <div class="gfoot"><span>● <span data-fr>pays déclarant</span><span data-en>reporting country</span></span><span style="color:var(--amber)">→ <span data-fr>flux d'exportation</span><span data-en>export flow</span></span><span data-fr>taille ∝ valeur</span><span data-en>size ∝ value</span></div>
+  </div>
+</div></div></div>
+
+<!-- PIPELINE -->
+<div class="rail" id="how"><div class="wrap">
+  <div class="step"><span class="n">01</span><div><b><span data-fr>Vos données</span><span data-en>Your data</span></b><span><span data-fr>Eurotrace · ASYCUDA · CSV · Comtrade</span><span data-en>Eurotrace · ASYCUDA · CSV · Comtrade</span></span></div></div>
+  <div class="step"><span class="n">02</span><div><b><span data-fr>Analytique</span><span data-en>Analytics</span></b><span><span data-fr>agrégats, contributions, HHI</span><span data-en>aggregates, contributions, HHI</span></span></div></div>
+  <div class="step"><span class="n">03</span><div><b><span data-fr>Narration IA</span><span data-en>AI narrative</span></b><span><span data-fr>locale, ancrée, anti-hallucination</span><span data-en>local, grounded, anti-hallucination</span></span></div></div>
+  <div class="step"><span class="n">04</span><div class="out"><b><span data-fr>Rapport</span><span data-en>Report</span></b><span><span data-fr>PDF · Word · HTML</span><span data-en>PDF · Word · HTML</span></span></div></div>
+</div></div>
+
+<!-- CAPABILITIES -->
+<section><div class="wrap">
+  <div class="intro">
+    <div class="kick"><span data-fr>Ce qui le distingue</span><span data-en>What sets it apart</span></div>
+    <h2><span data-fr>Pourquoi ReporTrade</span><span data-en>Why ReporTrade</span></h2>
+    <p class="sub"><span data-fr>Conçu pour les institutions, publiques comme privées : souverain, branché sur l'existant, honnête sur ses chiffres.</span><span data-en>Built for institutions, public and private: sovereign, plugged into your stack, honest about its figures.</span></p>
+  </div>
+  <div class="grid">
+    <div class="cap"><div class="top"><span class="ic"><svg viewBox="0 0 28 28"><path d="M14 3 5 6.5v6.5c0 5.5 3.8 8.6 9 10.5 5.2-1.9 9-5 9-10.5V6.5z"/><path class="t" d="M10 13.8l2.7 2.7L18 11.2"/></svg></span><span class="ix">01</span></div>
+      <h3><span data-fr>Souveraineté</span><span data-en>Sovereignty</span></h3><p><span data-fr>L'IA tourne en local. La microdonnée ne sort pas de chez vous.</span><span data-en>The AI runs locally. Microdata never leaves your premises.</span></p></div>
+    <div class="cap"><div class="top"><span class="ic"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="3.2"/><circle class="t" cx="5.5" cy="6.5" r="2.3"/><circle class="t" cx="22.5" cy="7.5" r="2.3"/><circle class="t" cx="14" cy="23.5" r="2.3"/><path d="M11.7 12 7.2 8M16.4 12.2 20.8 9M14 17.2v3.9"/></svg></span><span class="ix">02</span></div>
+      <h3><span data-fr>Multi-source, sans migration</span><span data-en>Multi-source, no migration</span></h3><p><span data-fr>Eurotrace (Access/SQL), ASYCUDA, CSV/TSV, API UN Comtrade (stats miroir).</span><span data-en>Eurotrace (Access/SQL), ASYCUDA, CSV/TSV, UN Comtrade API (mirror stats).</span></p></div>
+    <div class="cap"><div class="top"><span class="ic"><svg viewBox="0 0 28 28"><rect x="3.5" y="5" width="7" height="18" rx="1.6"/><rect x="17.5" y="5" width="7" height="18" rx="1.6"/><path class="t" d="M11 14h6m0 0-2.5-2.5M17 14l-2.5 2.5"/></svg></span><span class="ix">03</span></div>
+      <h3><span data-fr>Onboarding self-service</span><span data-en>Self-service onboarding</span></h3><p><span data-fr>Un assistant de mapping intègre un nouveau format sans développement.</span><span data-en>A mapping assistant ingests a new source format with no custom code.</span></p></div>
+    <div class="cap"><div class="top"><span class="ic"><svg viewBox="0 0 28 28"><circle cx="14" cy="14" r="10"/><path d="M4 14h20"/><path class="t" d="M14 4c-4 4-4 16 0 20M14 4c4 4 4 16 0 20"/></svg></span><span class="ix">04</span></div>
+      <h3><span data-fr>Bilingue & multi-nomenclature</span><span data-en>Bilingual & multi-classification</span></h3><p><span data-fr>Sortie FR/EN ; Système harmonisé ou CTCI. Aucun double travail.</span><span data-en>FR/EN output; Harmonized System or SITC. No double work.</span></p></div>
+    <div class="cap"><div class="top"><span class="ic"><svg viewBox="0 0 28 28"><path d="M14 2.8l2.9 2.1 3.6-.2 1.2 3.4 3 2-1 3.5 1 3.5-3 2-1.2 3.4-3.6-.2L14 25.2l-2.9-2.1-3.6.2-1.2-3.4-3-2 1-3.5-1-3.5 3-2 1.2-3.4 3.6.2z"/><path class="t" d="M10 14l2.7 2.7L18 11.3"/></svg></span><span class="ix">05</span></div>
+      <h3><span data-fr>Qualité des données</span><span data-en>Data quality</span></h3><p><span data-fr>Chiffre et corrige les codes non classés. Pour des sources réelles imparfaites.</span><span data-en>Quantifies and remediates unclassified codes. For imperfect real sources.</span></p></div>
+    <div class="cap"><div class="top"><span class="ic"><svg viewBox="0 0 28 28"><path d="M7 3h9l5 5v17H7z"/><path d="M16 3v5h5"/><path class="t" d="M10.5 20v-3.5M14 20v-6.5M17.5 20v-2.5"/></svg></span><span class="ix">06</span></div>
+      <h3><span data-fr>Niveau institutionnel</span><span data-en>Institutional-grade</span></h3><p><span data-fr>7 sections, 13 graphiques, 11 tableaux — narration ancrée, anti-hallucination.</span><span data-en>7 sections, 13 charts, 11 tables — grounded narrative, anti-hallucination.</span></p></div>
+  </div>
+</div></section>
+
+<!-- SPECIMEN -->
+<section class="band"><div class="wrap">
+  <div class="intro">
+    <div class="kick"><span data-fr>Le livrable</span><span data-en>The deliverable</span></div>
+    <h2><span data-fr>Le rapport produit.</span><span data-en>The report it produces.</span></h2>
+    <p class="sub"><span data-fr>Couverture, sections narrées, graphiques et tableaux — prêts à publier (exemple : Canada).</span><span data-en>Cover, narrated sections, charts and tables — ready to publish (example: Canada).</span></p>
+  </div>
+  <div class="specimen">
+    <div class="tabbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="file">report_2024_Q1.pdf</span>
+      <span class="stamp" data-fr>SPÉCIMEN</span><span class="stamp" data-en>SPECIMEN</span></div>
+    <div class="screen">
+      <img class="slide" src="demo-exports.png" alt="Section exportations — graphiques et tableaux">
+      <img class="slide" src="demo-cover.png" alt="Couverture du rapport">
+      <img class="slide" src="demo-regional.png" alt="Analyse régionale">
+    </div>
+  </div>
+  <div class="dots"><i></i><i></i><i></i></div>
+</div></section>
+
+<!-- AUDIENCE -->
+<section><div class="wrap">
+  <div class="intro">
+    <h2><span data-fr>Pour qui</span><span data-en>Who it's for</span></h2>
+    <p class="sub"><span data-fr>Coin d'entrée : l'Afrique francophone — mais le produit sert tout producteur ou analyste du commerce, sur standards HS &amp; ISO.</span><span data-en>Entry wedge: francophone Africa — but it serves any trade-data producer or analyst, on HS &amp; ISO standards.</span></p>
+  </div>
+  <div class="aud">
+    <div><b><span data-fr>Instituts de statistique</span><span data-en>Statistics offices</span></b><span data-fr>Un rapport régulier, dans leur langue, sans exposer la microdonnée.</span><span data-en>A regular report, in their language, without exposing microdata.</span></div>
+    <div><b><span data-fr>Douanes</span><span data-en>Customs</span></b><span data-fr>Valoriser les données de flux (ASYCUDA, Eurotrace).</span><span data-en>Turn flow data (ASYCUDA, Eurotrace) into reports.</span></div>
+    <div><b><span data-fr>Organismes régionaux</span><span data-en>Regional bodies</span></b><span data-fr>UE, ASEAN, Mercosur, CCG, CEDEAO, UEMOA, EAC, ZLECAf… multi-pays.</span><span data-en>EU, ASEAN, Mercosur, GCC, ECOWAS, WAEMU, EAC, AfCFTA… multi-country.</span></div>
+    <div><b><span data-fr>Cabinets de conseil</span><span data-en>Consulting firms</span></b><span data-fr>Big Four &amp; spécialisés : analyses prêtes-client, à l'échelle.</span><span data-en>Big Four &amp; specialists: client-ready analyses at scale.</span></div>
+    <div><b><span data-fr>Promotion &amp; analystes</span><span data-en>Promotion &amp; analysts</span></b><span data-fr>Notes de conjoncture rapides ; experts indépendants.</span><span data-en>Fast trade briefs; independent experts.</span></div>
+  </div>
+  <div class="bespoke">
+    <span class="tag" data-fr>SUR MESURE</span><span class="tag" data-en>BESPOKE</span>
+    <span><span data-fr><strong>Rapports personnalisés</strong> — mise en page, sections ou indicateurs sur mesure pour un client, <strong>sur commande expresse</strong>.</span><span data-en><strong>Custom reports</strong> — bespoke layout, sections or indicators for a given client, <strong>on express request</strong>.</span></span>
+  </div>
+</div></section>
+
+<!-- TRACKS -->
+<section class="band"><div class="wrap">
+  <div class="intro">
+    <h2><span data-fr>Deux portes d'entrée</span><span data-en>Two ways in</span></h2>
+    <p class="sub"><span data-fr>La valeur pour l'agence, et le financement par le bailleur.</span><span data-en>Operational value for the agency, and funding from the donor.</span></p>
+  </div>
+  <div class="tracks">
+    <div class="track">
+      <div class="k" data-fr>Volet INS</div><div class="k" data-en>NSO track</div>
+      <h3><span data-fr>La valeur d'usage</span><span data-en>The operational value</span></h3>
+      <ul>
+        <li><span data-fr>De plusieurs jours-économiste à quelques heures par rapport.</span><span data-en>From several economist-days to a few hours per report.</span></li>
+        <li><span data-fr>Une cadence de publication tenable, sans double travail bilingue.</span><span data-en>A publication cadence you can keep, no double bilingual work.</span></li>
+        <li><span data-fr>Autonomie : l'agence met à jour ses données et régénère elle-même.</span><span data-en>Autonomy: the agency refreshes data and regenerates itself.</span></li>
+      </ul>
+    </div>
+    <div class="track">
+      <div class="k" data-fr>Volet bailleur</div><div class="k" data-en>Donor track</div>
+      <h3><span data-fr>Le financement</span><span data-en>The funding</span></h3>
+      <ul>
+        <li><span data-fr>Livrable de renforcement de capacités, finançable.</span><span data-en>A fundable capacity-building deliverable.</span></li>
+        <li><span data-fr>Banque mondiale, BAD, UE, AFD, PNUD.</span><span data-en>World Bank, AfDB, EU, AFD, UNDP.</span></li>
+        <li><span data-fr>On équipe l'INS durablement — sans dépendance externe.</span><span data-en>Equips the NSO durably — without external dependency.</span></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- PROOF -->
+<section class="proof"><div class="wrap">
+  <div class="intro">
+    <div class="kick"><span data-fr>La preuve, en détail</span><span data-en>The proof, in detail</span></div>
+    <h2><span data-fr>Au <em>dollar près</em>.</span><span data-en>To the <em>dollar</em>.</span></h2>
+  </div>
+  <div class="recon">
+    <div><div class="l" data-fr>Exportations</div><div class="l" data-en>Exports</div><div class="v">186 825 525 489</div><div class="m">= StatCan ✓</div></div>
+    <div><div class="l" data-fr>Importations</div><div class="l" data-en>Imports</div><div class="v">180 868 898 420</div><div class="m">= StatCan ✓</div></div>
+    <div><div class="l" data-fr>Balance</div><div class="l" data-en>Balance</div><div class="v s">+5 956 627 069</div><div class="m" data-fr>256 683 lignes d'export</div><div class="m" data-en>256,683 export rows</div></div>
+  </div>
+  <p class="note">
+    <span data-fr>Les totaux de ReporTrade reproduisent <strong>exactement</strong> les totaux officiels de Statistique Canada en <strong>base douanière</strong> (T1-2024). Contrôle <strong>même base, même source</strong> — fidélité d'ingestion, pas une ré-estimation en balance des paiements. Adaptateurs éprouvés sur des jeux d'exemple (fichiers douaniers, Eurotrace, Comtrade). <em>Aucune production cliente nommée n'est revendiquée.</em></span>
+    <span data-en>ReporTrade's totals reproduce Statistics Canada's official <strong>customs-basis</strong> totals <strong>exactly</strong> (Q1-2024). A <strong>same-basis, same-source</strong> check — ingestion fidelity, not a balance-of-payments cross-estimate. Adapters exercised on sample datasets (customs files, Eurotrace, Comtrade). <em>No named client production is claimed.</em></span>
+  </p>
+</div></section>
+
+<!-- FINAL -->
+<section class="final" id="contact"><div class="wrap">
+  <h2><span data-fr>Commencez par un pilote</span><span data-en>Start with a pilot</span></h2>
+  <p><span data-fr>Envoyez un échantillon de vos données : nous produisons votre prochain rapport, et vous jugez sur pièce.</span><span data-en>Send a sample of your data: we produce your next report and you judge on the result.</span></p>
+  <a class="btn btn-primary" href="mailto:info@reportrade.com?subject=ReporTrade%20—%20pilote"><span data-fr>Nous contacter</span><span data-en>Contact us</span></a>
+  <div class="emails">info@reportrade.com · johndelorraine@proton.me</div>
+</div></section>
+
+<footer><div class="wrap">
+  <span class="word"><span class="a">Repor</span><span class="b">Trade</span></span>
+  <span><span data-fr>Souverain · bilingue · sur site — tarification sur devis</span><span data-en>Sovereign · bilingual · on-premise — pricing on request</span></span>
+  <span class="bymavo"><span data-fr>Une solution</span><span data-en>Built by</span> <b class="mavoword">mavo</b></span>
+  <span class="copyright">© 2026 ReporTrade. <span data-fr>Tous droits réservés.</span><span data-en>All rights reserved.</span></span>
+</div></footer>
+
+<script>
+  function setLang(l){
+    document.body.classList.toggle('en', l==='en');
+    document.documentElement.lang = l;
+    bfr.classList.toggle('on', l==='fr'); ben.classList.toggle('on', l==='en');
+  }
+  if((navigator.language||'').slice(0,2)==='en') setLang('en');
+</script>
+</body>
+</html>

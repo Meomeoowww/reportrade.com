@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReporTrade : De la microdonnée douanière au rapport que vous publiez</title>
+<meta name="description" content="ReporTrade transforme la microdonnée douanière (SCIM/IMTS) en un rapport institutionnel et bilingue, souverain et sur site.">
+<link rel="icon" href="mavologo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --space0:#00060F; --space1:#001227; --space2:#001B36; --ocean:#002444;
+    --teal:#2DD4BF; --teal-d:#0B6A80; --amber:#E8A33D; --amber-d:#B9812F;
+    --cloud:#EAF2FB; --cloud-mut:#8DA4BC; --bone:#F7F5F0; --bone2:#EFEBE2;
+    --ink:#0C1622; --muted:#5C6B7A; --line:#DEE4EC;
+    --d-line:rgba(234,242,251,.12);
+    --display:'Bricolage Grotesque',Georgia,serif;
+    --body:'Inter',-apple-system,system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --maxw:1220px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:var(--body);color:var(--ink);background:var(--bone);
+    font-size:16.5px;line-height:1.55;letter-spacing:-.01em;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 32px}
+  a{color:inherit}
+  h1,h2,h3{font-family:var(--display);font-weight:700;line-height:1.02;margin:0;letter-spacing:-.025em}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .eyebrow{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase}
+  [data-en],[data-pt]{display:none}
+  body.en [data-fr],body.en [data-pt]{display:none}
+  body.en [data-en]{display:revert}
+  body.pt [data-fr],body.pt [data-en]{display:none}
+  body.pt [data-pt]{display:revert}
+  :focus-visible{outline:2.5px solid var(--teal);outline-offset:3px;border-radius:4px}
+  ::selection{background:var(--teal);color:#04231f}
+
+  /* ---------- header ---------- */
+  header{position:fixed;top:0;left:0;right:0;z-index:50;transition:background .3s,border-color .3s,backdrop-filter .3s;
+    border-bottom:1px solid transparent}
+  header.solid{background:rgba(0,6,15,.72);backdrop-filter:blur(14px);border-bottom-color:var(--d-line)}
+  .bar{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .word{font-family:var(--display);font-weight:800;font-size:22px;letter-spacing:-.04em;color:var(--cloud)}
+  .word .b{color:var(--teal)}
+  .nav-right{display:flex;align-items:center;gap:18px}
+  .langs{display:inline-flex;border:1px solid var(--d-line);border-radius:999px;overflow:hidden}
+  .langs button{font-family:var(--mono);font-size:11.5px;font-weight:600;border:0;background:transparent;
+    color:var(--cloud-mut);padding:7px 13px;cursor:pointer;letter-spacing:.06em}
+  .langs button.on{background:var(--teal);color:#04231f}
+  .mini{display:inline-block;font-family:var(--body);font-weight:600;font-size:14px;text-decoration:none;
+    color:var(--space0);background:var(--cloud);padding:9px 18px;border-radius:999px;transition:transform .14s,background .14s}
+  .mini:hover{transform:translateY(-1px);background:#fff}
+  @media(max-width:620px){.mini{display:none}}
+
+  /* ---------- hero / globe ---------- */
+  .hero{position:relative;min-height:100vh;min-height:100svh;display:flex;align-items:center;overflow:hidden;
+    background:
+      radial-gradient(120% 90% at 62% 42%, #00284d 0%, #00142b 42%, var(--space0) 78%),
+      var(--space0);
+    color:var(--cloud)}
+  #globe{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+  .hero::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:linear-gradient(100deg, var(--space0) 4%, rgba(0,6,15,.72) 30%, rgba(0,6,15,0) 58%),
+      linear-gradient(0deg, var(--space0) 1%, rgba(0,6,15,0) 22%)}
+  .hero-in{position:relative;z-index:3;width:100%;padding:120px 0 96px}
+  .hero-copy{max-width:640px}
+  .hero .eyebrow{color:var(--teal);opacity:.9}
+  .hero h1{font-size:clamp(42px,6.4vw,80px);font-weight:700;color:var(--cloud);margin:22px 0 24px;
+    letter-spacing:-.035em;line-height:.98;max-width:16ch}
+  .hero h1 em{font-style:normal;color:var(--teal)}
+  .hero .lead{font-size:clamp(17px,1.7vw,20.5px);line-height:1.5;color:var(--cloud-mut);max-width:520px;margin:0 0 36px}
+  .hero .lead b{color:var(--cloud);font-weight:600}
+  .cta{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+  .btn{display:inline-block;font-family:var(--body);font-weight:600;text-decoration:none;padding:15px 28px;
+    border-radius:999px;font-size:15.5px;transition:transform .14s,box-shadow .14s,background .14s}
+  .btn-primary{background:var(--teal);color:#04231f;box-shadow:0 14px 40px -12px rgba(45,212,191,.6)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 20px 50px -12px rgba(45,212,191,.7)}
+  .btn-ghost{color:var(--cloud);border:1px solid var(--d-line);padding:14px 24px;border-radius:999px;font-size:15px}
+  .btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+  .legend{display:flex;gap:22px;margin-top:34px;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--cloud-mut)}
+  .legend i{display:inline-block;width:22px;height:2px;vertical-align:middle;margin-right:8px;border-radius:2px}
+  .legend .t{background:var(--teal)} .legend .a{background:var(--amber)}
+  .homes{display:flex;gap:8px;align-items:center;margin-top:16px;flex-wrap:wrap}
+  .homes .hlab{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--cloud-mut);margin-right:4px}
+  .chip{font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--cloud-mut);
+    background:transparent;border:1px solid var(--d-line);border-radius:999px;padding:6px 13px;cursor:pointer;transition:.15s}
+  .chip:hover{border-color:var(--teal);color:var(--teal)}
+  .chip.on{background:var(--teal);border-color:var(--teal);color:#04231f}
+
+  /* ticker */
+  .ticker{position:absolute;left:0;right:0;bottom:0;z-index:3;border-top:1px solid var(--d-line);
+    background:rgba(0,6,15,.5);backdrop-filter:blur(6px);overflow:hidden;height:46px;display:flex;align-items:center}
+  .ticker-track{display:inline-flex;gap:0;white-space:nowrap;animation:slide 42s linear infinite;will-change:transform}
+  .ticker span{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--cloud-mut);padding:0 26px;
+    border-right:1px solid var(--d-line)}
+  .ticker span b{color:var(--cloud);font-weight:600}
+  .ticker span .g{color:var(--teal)}
+  @keyframes slide{to{transform:translateX(-50%)}}
+
+  /* ---------- generic sections ---------- */
+  .sec{padding:128px 0;position:relative}
+  .kick{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-d)}
+  .h2{font-size:clamp(32px,4.4vw,52px);color:var(--ink);margin:14px 0 0;letter-spacing:-.03em;max-width:20ch}
+  .sub{color:var(--muted);max-width:600px;margin:18px 0 0;font-size:18.5px;line-height:1.5}
+  .head{margin-bottom:64px}
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .stagger>*{opacity:0}  /* children animated one by one via JS (WAAPI) */
+
+  /* pipeline : a real sequence, so it is numbered */
+  .flow{background:var(--space0);color:var(--cloud)}
+  .flow .kick{color:var(--teal)}
+  .flow .h2{color:var(--cloud)}
+  .flow .sub{color:var(--cloud-mut)}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:56px;border:1px solid var(--d-line);border-radius:18px;overflow:hidden}
+  @media(max-width:820px){.steps{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.steps{grid-template-columns:1fr}}
+  .step{padding:34px 30px;border-right:1px solid var(--d-line);position:relative;background:linear-gradient(180deg,rgba(45,212,191,.03),transparent)}
+  .step:last-child{border-right:0}
+  .step .no{font-family:var(--mono);font-size:12px;color:var(--teal);letter-spacing:.1em}
+  .step h3{font-size:22px;color:var(--cloud);margin:16px 0 8px;font-weight:600}
+  .step p{margin:0;color:var(--cloud-mut);font-size:14.5px}
+  .step .arrow{position:absolute;right:-9px;top:50%;transform:translateY(-50%);color:var(--teal);font-size:16px;z-index:2;background:var(--space0);padding:2px}
+  @media(max-width:820px){.step .arrow{display:none}}
+
+  /* capabilities */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:30px 28px;transition:transform .16s,box-shadow .16s,border-color .16s}
+  .card:hover{transform:translateY(-3px);box-shadow:0 24px 50px -30px rgba(12,22,34,.35);border-color:#cfd8e3}
+  .card .ic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:rgba(45,212,191,.1);margin-bottom:20px}
+  .card .ic svg{width:23px;height:23px;fill:none;stroke:var(--teal-d);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  .card h3{font-size:20px;color:var(--ink);margin:0 0 9px;font-weight:600}
+  .card p{margin:0;color:var(--muted);font-size:15px;line-height:1.5}
+
+  /* deliverable */
+  .band{background:var(--bone2)}
+  .specimen{border-radius:18px;overflow:hidden;border:1px solid var(--line);box-shadow:0 50px 100px -50px rgba(12,22,34,.5);background:#fff;max-width:820px;margin:0 auto}
+  .tabbar{height:44px;background:var(--ocean);display:flex;align-items:center;gap:7px;padding:0 16px}
+  .tabbar .dot{width:10px;height:10px;border-radius:50%;background:rgba(234,242,251,.24)}
+  .tabbar .file{margin-left:12px;font-family:var(--mono);font-size:12px;color:var(--cloud-mut)}
+  .tabbar .stamp{margin-left:auto;font-family:var(--mono);font-size:10px;letter-spacing:.13em;color:var(--teal);border:1px solid var(--teal-d);border-radius:999px;padding:3px 10px}
+  .screen{position:relative;aspect-ratio:16/11;overflow:hidden;background:#fff}
+  .screen img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;opacity:0;animation:reel 21s infinite}
+  .screen img:nth-child(2){animation-delay:7s}.screen img:nth-child(3){animation-delay:14s}
+  @keyframes reel{0%{opacity:0;object-position:50% 0}4%{opacity:1}28%{opacity:1;object-position:50% 100%}38%{opacity:0;object-position:50% 100%}100%{opacity:0}}
+
+  /* proof : dark, from orbit */
+  .proof{background:linear-gradient(160deg,var(--space2),var(--space0));color:var(--cloud);position:relative;overflow:hidden}
+  .proof .kick{color:var(--amber)}
+  .proof .h2{color:var(--cloud)}
+  .proof .h2 em{font-style:normal;color:var(--teal)}
+  .recon{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--d-line);border:1px solid var(--d-line);border-radius:16px;overflow:hidden;margin:48px 0 26px}
+  @media(max-width:680px){.recon{grid-template-columns:1fr}}
+  .recon div{background:rgba(0,20,43,.6);padding:28px 26px}
+  .recon .l{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cloud-mut)}
+  .recon .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:23px;color:var(--cloud);margin-top:10px;font-weight:600}
+  .recon .v.s{color:var(--teal)}
+  .recon .m{font-family:var(--mono);font-size:11px;color:var(--teal);margin-top:8px;letter-spacing:.05em}
+  .proof .note{color:var(--cloud-mut);font-size:15px;max-width:780px;line-height:1.6}
+  .proof .note b{color:var(--cloud)} .proof .note em{color:var(--cloud-mut)}
+
+  /* audience */
+  .aud{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:820px){.aud{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.aud{grid-template-columns:1fr}}
+  .aud div{background:#fff;border:1px solid var(--line);border-radius:16px;padding:24px;border-top:3px solid var(--teal)}
+  .aud b{display:block;font-family:var(--display);font-size:19px;font-weight:600;color:var(--ink);margin-bottom:7px;letter-spacing:-.02em}
+  .aud span{color:var(--muted);font-size:14.5px;line-height:1.5}
+  .bespoke{margin-top:26px;background:var(--space0);color:var(--cloud);border-radius:16px;padding:24px 28px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .bespoke .tag{font-family:var(--mono);font-size:11px;letter-spacing:.13em;background:var(--amber);color:#241706;padding:6px 12px;border-radius:999px;font-weight:600;white-space:nowrap}
+  .bespoke b{color:#fff}
+
+  /* tracks */
+  .tracks{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){.tracks{grid-template-columns:1fr}}
+  .track{border:1px solid var(--line);border-radius:18px;padding:36px;background:#fff}
+  .track .tk{font-family:var(--mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--teal-d)}
+  .track h3{font-size:25px;color:var(--ink);margin:12px 0 18px;font-weight:700;letter-spacing:-.02em}
+  .track ul{margin:0;padding:0;list-style:none}
+  .track li{margin:14px 0;padding-left:28px;position:relative;color:var(--muted);line-height:1.5}
+  .track li::before{content:"→";position:absolute;left:0;color:var(--teal);font-weight:700}
+
+  /* final */
+  .final{background:var(--space0);color:var(--cloud);text-align:center;position:relative;overflow:hidden}
+  .final .glow{position:absolute;left:50%;top:-30%;width:900px;height:900px;transform:translateX(-50%);
+    background:radial-gradient(circle,rgba(45,212,191,.16),transparent 62%);pointer-events:none}
+  .final .h2{color:#fff;margin:0 auto 16px;max-width:24ch}
+  .final p{color:var(--cloud-mut);max-width:560px;margin:0 auto 32px;font-size:18px}
+  .final .emails{margin-top:22px;font-family:var(--mono);font-size:13px;color:var(--cloud-mut)}
+
+  footer{background:var(--space0);color:var(--cloud-mut);border-top:1px solid var(--d-line);padding:40px 0;font-size:14px}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;align-items:center}
+  footer .word{font-size:19px}
+  .bymavo{display:inline-flex;align-items:baseline;gap:6px}
+  .mavoword{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:-.03em;color:var(--cloud)}
+
+  @media(prefers-reduced-motion:reduce){
+    .ticker-track{animation:none}.screen img{animation:none}.screen img:first-child{opacity:1}
+    .reveal{opacity:1;transform:none;transition:none}
+    .stagger>*{opacity:1}
+  }
+</style>
+</head>
+<body class="fr">
+
+<header id="hdr"><div class="wrap bar">
+  <div class="word"><span>Repor</span><span class="b">Trade</span></div>
+  <div class="nav-right">
+    <div class="langs">
+      <button id="bfr" class="on" onclick="setLang('fr')">FR</button>
+      <button id="ben" onclick="setLang('en')">EN</button>
+      <button id="bpt" onclick="setLang('pt')">PT</button>
+    </div>
+    <a class="mini" href="#contact"><span data-fr>Demander un pilote</span><span data-en>Request a pilot</span><span data-pt>Solicitar um piloto</span></a>
+  </div>
+</div></header>
+
+<!-- ===================== HERO ===================== -->
+<section class="hero">
+  <canvas id="globe"></canvas>
+  <div class="hero-in"><div class="wrap"><div class="hero-copy">
+    <div class="eyebrow"><span data-fr>Microdonnées douanières · SCIM / IMTS</span><span data-en>Customs microdata · IMTS</span><span data-pt>Microdados aduaneiros · IMTS</span></div>
+    <h1>
+      <span data-fr>De la microdonnée douanière au <em>rapport</em> que vous publiez.</span>
+      <span data-en>From customs microdata to the <em>report</em> you publish.</span>
+      <span data-pt>Do microdado aduaneiro ao <em>relatório</em> que você publica.</span>
+    </h1>
+    <p class="lead">
+      <span data-fr>ReporTrade transforme la microdonnée IMTS brute en un rapport narré, bilingue et de niveau analyste, généré <b>100&nbsp;% sur site</b>. Aucune microdonnée ne quitte votre infrastructure.</span>
+      <span data-en>ReporTrade turns raw IMTS microdata into a narrated, bilingual, analyst-grade report, generated <b>fully on-premise</b>. No microdata ever leaves your infrastructure.</span>
+      <span data-pt>O ReporTrade transforma microdados IMTS brutos num relatório narrado, bilingue, de nível analista, gerado <b>integralmente em instalação própria</b>. Nenhum microdado deixa a sua infraestrutura.</span>
+    </p>
+    <div class="cta">
+      <a class="btn btn-primary" href="#contact"><span data-fr>Demander un pilote</span><span data-en>Request a pilot</span><span data-pt>Solicitar um piloto</span></a>
+      <a class="btn btn-ghost" href="#how"><span data-fr>Comment ça marche ↓</span><span data-en>How it works ↓</span><span data-pt>Como funciona ↓</span></a>
+    </div>
+    <div class="legend">
+      <span><i class="t"></i><span data-fr>flux d'exportation</span><span data-en>export flows</span><span data-pt>fluxos de exportação</span></span>
+      <span><i class="a"></i><span data-fr>flux d'importation</span><span data-en>import flows</span><span data-pt>fluxos de importação</span></span>
+    </div>
+    <div class="homes">
+      <span class="hlab"><span data-fr>Pays déclarant</span><span data-en>Reporting country</span><span data-pt>País declarante</span></span>
+      <button class="chip on" data-home="CAN">CAN</button>
+      <button class="chip" data-home="FRA">FRA</button>
+      <button class="chip" data-home="NGA">NGA</button>
+      <button class="chip" data-home="CHN">CHN</button>
+      <button class="chip" data-home="BRA">BRA</button>
+      <button class="chip" data-home="TGO">TGO</button>
+    </div>
+  </div></div></div>
+
+  <div class="ticker"><div class="ticker-track" id="tick"></div></div>
+</section>
+
+<!-- ===================== PIPELINE ===================== -->
+<section class="sec flow" id="how"><div class="wrap">
+  <div class="head reveal">
+    <div class="kick"><span data-fr>Le pipeline</span><span data-en>The pipeline</span><span data-pt>O pipeline</span></div>
+    <h2 class="h2"><span data-fr>Quatre étapes, de la donnée brute au livrable.</span><span data-en>Four steps, from raw data to deliverable.</span><span data-pt>Quatro etapas, do dado bruto ao entregável.</span></h2>
+  </div>
+  <div class="steps stagger">
+    <div class="step"><div class="no">01</div><h3><span data-fr>Vos données</span><span data-en>Your data</span><span data-pt>Os seus dados</span></h3><p>Eurotrace · ASYCUDA · CSV · Comtrade</p><span class="arrow">→</span></div>
+    <div class="step"><div class="no">02</div><h3><span data-fr>Analytique</span><span data-en>Analytics</span><span data-pt>Análise</span></h3><p><span data-fr>agrégats, contributions, HHI</span><span data-en>aggregates, contributions, HHI</span><span data-pt>agregados, contribuições, HHI</span></p><span class="arrow">→</span></div>
+    <div class="step"><div class="no">03</div><h3><span data-fr>Narration automatique</span><span data-en>Automated narrative</span><span data-pt>Narrativa automatizada</span></h3><p><span data-fr>locale, vérifiée sur les chiffres</span><span data-en>local, figures checked against the data</span><span data-pt>local, números conferidos com os dados</span></p><span class="arrow">→</span></div>
+    <div class="step"><div class="no">04</div><h3><span data-fr>Rapport</span><span data-en>Report</span><span data-pt>Relatório</span></h3><p>PDF · Word · HTML</p></div>
+  </div>
+</div></section>
+
+<!-- ===================== CAPABILITIES ===================== -->
+<section class="sec"><div class="wrap">
+  <div class="head reveal">
+    <div class="kick"><span data-fr>Ce qui le distingue</span><span data-en>What sets it apart</span><span data-pt>O que o distingue</span></div>
+    <h2 class="h2"><span data-fr>Pourquoi ReporTrade</span><span data-en>Why ReporTrade</span><span data-pt>Porquê ReporTrade</span></h2>
+    <p class="sub"><span data-fr>Conçu pour les institutions, publiques comme privées : souverain, branché sur l'existant, honnête sur ses chiffres.</span><span data-en>Built for institutions, public and private: sovereign, plugged into your stack, honest about its figures.</span><span data-pt>Construído para instituições, públicas e privadas : soberano, ligado ao existente, honesto sobre os seus números.</span></p>
+  </div>
+  <div class="grid stagger">
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 4.6 3.2 7.3 8 9 4.8-1.7 8-4.4 8-9V5z"/><path d="M9 11.7l2.3 2.3L16 9.5"/></svg></div>
+      <h3><span data-fr>Souveraineté</span><span data-en>Sovereignty</span><span data-pt>Soberania</span></h3><p><span data-fr>L'IA tourne en local. La microdonnée ne sort pas de chez vous.</span><span data-en>The AI runs locally. Microdata never leaves your premises.</span><span data-pt>A IA funciona localmente. Os microdados não saem das suas instalações.</span></p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2.6"/><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6.5" r="2"/><circle cx="12" cy="20" r="2"/><path d="M10 10.5 6.6 7.4M14 10.6 17.2 8M12 14.6v3.4"/></svg></div>
+      <h3><span data-fr>Multi-source, sans migration</span><span data-en>Multi-source, no migration</span><span data-pt>Multi-fonte, sem migração</span></h3><p><span data-fr>Eurotrace (Access/SQL), ASYCUDA, CSV/TSV, API UN Comtrade (stats miroir).</span><span data-en>Eurotrace (Access/SQL), ASYCUDA, CSV/TSV, UN Comtrade API (mirror stats).</span><span data-pt>Eurotrace (Access/SQL), ASYCUDA, CSV/TSV, API UN Comtrade (estatísticas espelhadas).</span></p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="16" rx="1.4"/><rect x="15" y="4" width="6" height="16" rx="1.4"/><path d="M9.5 12h5m0 0-2-2M14.5 12l-2 2"/></svg></div>
+      <h3><span data-fr>Onboarding self-service</span><span data-en>Self-service onboarding</span><span data-pt>Onboarding self-service</span></h3><p><span data-fr>Un assistant de mapping intègre un nouveau format sans développement.</span><span data-en>A mapping assistant ingests a new source format with no custom code.</span><span data-pt>Um assistente de mapeamento integra um novo formato sem desenvolvimento.</span></p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17"/><path d="M12 3.5c-3.4 3.4-3.4 13.6 0 17M12 3.5c3.4 3.4 3.4 13.6 0 17"/></svg></div>
+      <h3><span data-fr>Bilingue & multi-nomenclature</span><span data-en>Bilingual & multi-classification</span><span data-pt>Bilingue & multi-nomenclatura</span></h3><p><span data-fr>Sortie FR/EN ; Système harmonisé ou CTCI. Aucun double travail.</span><span data-en>FR/EN output; Harmonized System or SITC. No double work.</span><span data-pt>Saída FR/EN/PT ; Sistema Harmonizado ou SITC. Sem trabalho duplicado.</span></p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2.5l2.5 1.8 3-.2 1 2.9 2.6 1.7-.9 3 .9 3-2.6 1.7-1 2.9-3-.2L12 21.5l-2.5-1.8-3 .2-1-2.9L2.9 15l.9-3-.9-3 2.6-1.7 1-2.9 3 .2z"/><path d="M8.6 12l2.3 2.3L15.4 9.7"/></svg></div>
+      <h3><span data-fr>Qualité des données</span><span data-en>Data quality</span><span data-pt>Qualidade dos dados</span></h3><p><span data-fr>Chiffre et corrige les codes non classés. Pour des sources réelles imparfaites.</span><span data-en>Quantifies and remediates unclassified codes. For imperfect real sources.</span><span data-pt>Quantifica e corrige códigos não classificados. Para fontes reais imperfeitas.</span></p></div>
+    <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M6 2.5h8l4.5 4.5V21.5H6z"/><path d="M14 2.5V7h4.5"/><path d="M9 18v-3M12 18v-5.5M15 18v-2"/></svg></div>
+      <h3><span data-fr>Précision documentée</span><span data-en>Documented precision</span><span data-pt>Precisão documentada</span></h3><p><span data-fr>7 sections, 13 graphiques, 11 tableaux, narration vérifiée sur les chiffres.</span><span data-en>7 sections, 13 charts, 11 tables, narrative checked against the data.</span><span data-pt>7 secções, 13 gráficos, 11 tabelas, narrativa verificada com os dados.</span></p></div>
+  </div>
+</div></section>
+
+<!-- ===================== DELIVERABLE ===================== -->
+<section class="sec band"><div class="wrap">
+  <div class="head reveal">
+    <div class="kick"><span data-fr>Le livrable</span><span data-en>The deliverable</span><span data-pt>O entregável</span></div>
+    <h2 class="h2"><span data-fr>Le rapport qu'il produit.</span><span data-en>The report it produces.</span><span data-pt>O relatório que ele produz.</span></h2>
+    <p class="sub"><span data-fr>Couverture, sections narrées, graphiques et tableaux, prêts à publier (exemple : Canada).</span><span data-en>Cover, narrated sections, charts and tables, ready to publish (example: Canada).</span><span data-pt>Capa, secções narradas, gráficos e tabelas, prontos a publicar (exemplo: Canadá).</span></p>
+  </div>
+  <div class="specimen reveal">
+    <div class="tabbar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+      <span class="file">report_2024_Q1.pdf</span>
+      <span class="stamp" data-fr>SPÉCIMEN</span><span class="stamp" data-en>SPECIMEN</span><span class="stamp" data-pt>ESPÉCIME</span></div>
+    <div class="screen">
+      <img src="demo-exports.png" alt="Section exportations : graphiques et tableaux">
+      <img src="demo-cover.png" alt="Couverture du rapport">
+      <img src="demo-regional.png" alt="Analyse régionale">
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== PROOF ===================== -->
+<section class="sec proof"><div class="wrap">
+  <div class="head reveal">
+    <div class="kick"><span data-fr>La preuve, en détail</span><span data-en>The proof, in detail</span><span data-pt>A prova, em detalhe</span></div>
+    <h2 class="h2"><span data-fr>Au <em>dollar près</em>.</span><span data-en>To the <em>dollar</em>.</span><span data-pt>Ao <em>dólar</em> exato.</span></h2>
+  </div>
+  <div class="recon reveal">
+    <div><div class="l" data-fr>Exportations</div><div class="l" data-en>Exports</div><div class="l" data-pt>Exportações</div><div class="v">186 825 525 489</div><div class="m">= StatCan ✓</div></div>
+    <div><div class="l" data-fr>Importations</div><div class="l" data-en>Imports</div><div class="l" data-pt>Importações</div><div class="v">180 868 898 420</div><div class="m">= StatCan ✓</div></div>
+    <div><div class="l" data-fr>Balance</div><div class="l" data-en>Balance</div><div class="l" data-pt>Balança comercial</div><div class="v s">+5 956 627 069</div><div class="m" data-fr>256 683 lignes d'export</div><div class="m" data-en>256,683 export rows</div><div class="m" data-pt>256 683 linhas de exportação</div></div>
+  </div>
+  <p class="note reveal">
+    <span data-fr>Les totaux de ReporTrade reproduisent <b>exactement</b> les totaux officiels de Statistique Canada en <b>base douanière</b> (T1-2024). Contrôle <b>même base, même source</b> : fidélité d'ingestion, pas une ré-estimation en balance des paiements. Adaptateurs éprouvés sur des jeux d'exemple (fichiers douaniers, Eurotrace, Comtrade). <em>Aucune production cliente nommée n'est revendiquée.</em></span>
+    <span data-en>ReporTrade's totals reproduce Statistics Canada's official <b>customs-basis</b> totals <b>exactly</b> (Q1-2024). A <b>same-basis, same-source</b> check : ingestion fidelity, not a balance-of-payments cross-estimate. Adapters exercised on sample datasets (customs files, Eurotrace, Comtrade). <em>No named client production is claimed.</em></span>
+    <span data-pt>Os totais do ReporTrade reproduzem <b>exatamente</b> os totais oficiais do Statistics Canada em <b>base aduaneira</b> (T1-2024). Controlo <b>mesma base, mesma fonte</b> : fidelidade de ingestão, não uma reestimação da balança de pagamentos. Adaptadores testados em conjuntos de exemplo (ficheiros aduaneiros, Eurotrace, Comtrade). <em>Nenhuma produção de cliente nomeada é reivindicada.</em></span>
+  </p>
+</div></section>
+
+<!-- ===================== AUDIENCE ===================== -->
+<section class="sec"><div class="wrap">
+  <div class="head reveal">
+    <div class="kick"><span data-fr>Pour qui</span><span data-en>Who it's for</span><span data-pt>Para quem</span></div>
+    <h2 class="h2"><span data-fr>Producteurs et analystes du commerce.</span><span data-en>Trade-data producers and analysts.</span><span data-pt>Produtores e analistas de dados comerciais.</span></h2>
+    <p class="sub"><span data-fr>Coin d'entrée : l'Afrique francophone, mais le produit sert tout acteur du commerce, sur standards HS &amp; ISO.</span><span data-en>Entry wedge: francophone Africa, but it serves any trade-data actor, on HS &amp; ISO standards.</span><span data-pt>Porta de entrada : África francófona, mas o produto serve qualquer ator do comércio, sobre normas HS &amp; ISO.</span></p>
+  </div>
+  <div class="aud stagger">
+    <div><b><span data-fr>Instituts de statistique</span><span data-en>Statistics offices</span><span data-pt>Institutos de estatística</span></b><span data-fr>Un rapport régulier, dans leur langue, sans exposer la microdonnée.</span><span data-en>A regular report, in their language, without exposing microdata.</span><span data-pt>Um relatório regular, na sua língua, sem expor os microdados.</span></div>
+    <div><b><span data-fr>Douanes</span><span data-en>Customs</span><span data-pt>Alfândegas</span></b><span data-fr>Valoriser les données de flux (ASYCUDA, Eurotrace).</span><span data-en>Turn flow data (ASYCUDA, Eurotrace) into reports.</span><span data-pt>Valorizar os dados de fluxo (ASYCUDA, Eurotrace) em relatórios.</span></div>
+    <div><b><span data-fr>Organismes régionaux</span><span data-en>Regional bodies</span><span data-pt>Organismos regionais</span></b><span data-fr>UE, ASEAN, Mercosur, CCG, CEDEAO, UEMOA, EAC, ZLECAf… multi-pays.</span><span data-en>EU, ASEAN, Mercosur, GCC, ECOWAS, WAEMU, EAC, AfCFTA… multi-country.</span><span data-pt>UE, ASEAN, Mercosul, CCG, CEDEAO, UEMOA, EAC, ZLECAf… multipaíses.</span></div>
+    <div><b><span data-fr>Cabinets de conseil</span><span data-en>Consulting firms</span><span data-pt>Consultoras</span></b><span data-fr>Big Four &amp; spécialisés : analyses prêtes-client, à l'échelle.</span><span data-en>Big Four &amp; specialists: client-ready analyses at scale.</span><span data-pt>Big Four &amp; especializadas : análises prontas para o cliente, à escala.</span></div>
+    <div><b><span data-fr>Promotion &amp; analystes</span><span data-en>Promotion &amp; analysts</span><span data-pt>Promoção &amp; analistas</span></b><span data-fr>Notes de conjoncture sur demande ; experts indépendants.</span><span data-en>Trade briefs on demand; independent experts.</span><span data-pt>Notas de conjuntura sob pedido ; especialistas independentes.</span></div>
+    <div><b><span data-fr>Banques centrales</span><span data-en>Central banks</span><span data-pt>Bancos centrais</span></b><span data-fr>Suivi du commerce pour l'analyse macro et la conjoncture.</span><span data-en>Trade monitoring for macro and business-cycle analysis.</span><span data-pt>Monitorização do comércio para análise macro e conjuntura.</span></div>
+  </div>
+  <div class="bespoke reveal">
+    <span class="tag" data-fr>SUR MESURE</span><span class="tag" data-en>BESPOKE</span><span class="tag" data-pt>POR MEDIDA</span>
+    <span><span data-fr><b>Rapports personnalisés</b> : mise en page, sections ou indicateurs sur mesure pour un client, sur commande expresse.</span><span data-en><b>Custom reports</b> : bespoke layout, sections or indicators for a given client, on express request.</span><span data-pt><b>Relatórios personalizados</b> : maquetación, secções ou indicadores por medida para um cliente, sob encomenda expressa.</span></span>
+  </div>
+</div></section>
+
+<!-- ===================== TRACKS ===================== -->
+<section class="sec band"><div class="wrap">
+  <div class="head reveal">
+    <div class="kick"><span data-fr>Deux portes d'entrée</span><span data-en>Two ways in</span><span data-pt>Duas portas de entrada</span></div>
+    <h2 class="h2"><span data-fr>La valeur pour l'agence, le financement par le bailleur.</span><span data-en>Value for the agency, funding from the donor.</span><span data-pt>O valor para a agência, o financiamento pelo doador.</span></h2>
+  </div>
+  <div class="tracks stagger">
+    <div class="track">
+      <div class="tk" data-fr>Volet INS</div><div class="tk" data-en>NSO track</div><div class="tk" data-pt>Perfil INS</div>
+      <h3><span data-fr>La valeur d'usage</span><span data-en>The operational value</span><span data-pt>O valor operacional</span></h3>
+      <ul>
+        <li><span data-fr>De plusieurs jours-économiste à quelques heures par rapport.</span><span data-en>From several economist-days to a few hours per report.</span><span data-pt>De vários dias-economista a algumas horas por relatório.</span></li>
+        <li><span data-fr>Une cadence de publication tenable, sans double travail bilingue.</span><span data-en>A publication cadence you can keep, no double bilingual work.</span><span data-pt>Um ritmo de publicação sustentável, sem trabalho duplicado bilingue.</span></li>
+        <li><span data-fr>Autonomie : l'agence met à jour ses données et régénère elle-même.</span><span data-en>Autonomy: the agency refreshes data and regenerates itself.</span><span data-pt>Autonomia : a agência atualiza os dados e gera novamente ela mesma.</span></li>
+      </ul>
+    </div>
+    <div class="track">
+      <div class="tk" data-fr>Volet bailleur</div><div class="tk" data-en>Donor track</div><div class="tk" data-pt>Perfil doador</div>
+      <h3><span data-fr>Le financement</span><span data-en>The funding</span><span data-pt>O financiamento</span></h3>
+      <ul>
+        <li><span data-fr>Livrable de renforcement de capacités, finançable.</span><span data-en>A fundable capacity-building deliverable.</span><span data-pt>Entregável de reforço de capacidades, financiável.</span></li>
+        <li><span data-fr>Banque mondiale, BAD, UE, AFD, PNUD.</span><span data-en>World Bank, AfDB, EU, AFD, UNDP.</span><span data-pt>Banco Mundial, BAfD, UE, AFD, PNUD.</span></li>
+        <li><span data-fr>On équipe l'INS durablement, sans dépendance externe.</span><span data-en>Equips the NSO durably, without external dependency.</span><span data-pt>Equipa o INS durablemente, sem dependência externa.</span></li>
+      </ul>
+    </div>
+  </div>
+</div></section>
+
+<!-- ===================== FINAL ===================== -->
+<section class="sec final" id="contact"><div class="glow"></div><div class="wrap">
+  <h2 class="h2 reveal"><span data-fr>Commencez par un pilote.</span><span data-en>Start with a pilot.</span><span data-pt>Comece com um piloto.</span></h2>
+  <p class="reveal"><span data-fr>Envoyez un échantillon de vos données : nous produisons votre prochain rapport, et vous jugez sur pièce.</span><span data-en>Send a sample of your data: we produce your next report and you judge on the result.</span><span data-pt>Envie uma amostra dos seus dados : produzimos o seu próximo relatório, e você avalia pelo resultado.</span></p>
+  <a class="btn btn-primary reveal" href="mailto:info@reportrade.com?subject=ReporTrade%20-%20pilote"><span data-fr>Nous contacter</span><span data-en>Contact us</span><span data-pt>Contacte-nos</span></a>
+  <div class="emails reveal">info@reportrade.com</div>
+</div></section>
+
+<footer><div class="wrap">
+  <span class="word"><span>Repor</span><span class="b">Trade</span></span>
+  <span><span data-fr>Souverain · bilingue · sur site · tarification sur devis</span><span data-en>Sovereign · bilingual · on-premise · pricing on request</span><span data-pt>Soberano · bilingue · em instalação própria · orçamento sob pedido</span></span>
+  <span class="bymavo"><span data-fr>Une solution</span><span data-en>Built by</span><span data-pt>Uma solução</span> <b class="mavoword">mavo</b></span>
+  <span class="copyright">© 2026 ReporTrade. <span data-fr>Tous droits réservés.</span><span data-en>All rights reserved.</span><span data-pt>Todos os direitos reservados.</span></span>
+</div></footer>
+
+<script>
+/* ---------- language ---------- */
+const TITLES = {
+  fr: "ReporTrade : De la microdonnée douanière au rapport que vous publiez",
+  en: "ReporTrade: From customs microdata to the report you publish",
+  pt: "ReporTrade: Do microdado aduaneiro ao relatório que publica"
+};
+function setLang(l){
+  ['fr','en','pt'].forEach(x=>document.body.classList.toggle(x, l===x));
+  document.documentElement.lang = l;
+  bfr.classList.toggle('on', l==='fr'); ben.classList.toggle('on', l==='en'); bpt.classList.toggle('on', l==='pt');
+  document.title = TITLES[l] || TITLES.fr;
+  try{ localStorage.setItem('rt-lang', l); }catch(_){}
+}
+const saved = (()=>{ try{ return localStorage.getItem('rt-lang'); }catch(_){ return null; } })();
+const nav = (navigator.language||'').slice(0,2);
+setLang(saved || (['en','pt'].includes(nav) ? nav : 'fr'));
+
+/* ---------- header solidify + globe parallax ---------- */
+const REDUCE = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hdr = document.getElementById('hdr');
+const globeCv = document.getElementById('globe');
+addEventListener('scroll', ()=>{
+  hdr.classList.toggle('solid', scrollY>40);
+  if(!REDUCE && globeCv) globeCv.style.transform = `translateY(${Math.min(scrollY*0.18,260)}px)`;
+}, {passive:true});
+
+/* ---------- scroll reveals: blocks, staggered children, count-ups ---------- */
+const io = new IntersectionObserver((es)=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
+  const el = e.target;
+  el.classList.add('in');
+  if(el.classList.contains('stagger') && !REDUCE){
+    [...el.children].forEach((ch,i)=>{
+      const anim = ch.animate(
+        [{opacity:0, transform:'translateY(20px)'},{opacity:1, transform:'none'}],
+        {duration:650, delay:i*80, easing:'cubic-bezier(.2,.7,.2,1)', fill:'forwards'});
+      anim.onfinish = ()=>{ ch.style.opacity='1'; anim.cancel(); }; // hand back to CSS (hover transforms)
+    });
+  }
+  if(el.classList.contains('recon')) countUp(el);
+  io.unobserve(el);
+}), {threshold:.14});
+document.querySelectorAll('.reveal, .stagger').forEach(el=>io.observe(el));
+
+function countUp(block){
+  if(REDUCE) return;
+  block.querySelectorAll('.v').forEach(el=>{
+    const txt = el.textContent.trim();
+    const sign = txt.startsWith('+') ? '+' : '';
+    const target = parseInt(txt.replace(/\D/g,''),10);
+    if(!target) return;
+    const t0 = performance.now(), dur = 1600;
+    requestAnimationFrame(function step(now){
+      const k = Math.min(1,(now-t0)/dur), ease = 1-Math.pow(1-k,3);
+      el.textContent = sign + Math.round(target*ease).toString().replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+      if(k<1) requestAnimationFrame(step);
+    });
+  });
+}
+
+(function(){
+  const items = [
+    ['Q1 2024',''],['EXPORTS','$186,825,525,489'],['✓ = STATCAN',''],['IMPORTS','$180,868,898,420'],
+    ['ROWS','256,683'],['BASIS','CUSTOMS'],['CLASS','HS6 · SITC'],['OUTPUT','FR / EN'],
+    ['DEPLOY','ON-PREMISE'],['SECTIONS','7'],['CHARTS','13'],['TABLES','11']
+  ];
+  const one = items.map(([k,v])=>`<span>${k} ${v?`<b>${v}</b>`:''}</span>`).join('').replace('✓ = STATCAN','<span class="g">✓ = STATCAN</span>');
+  document.getElementById('tick').innerHTML = one + one;
+})();
+
+/* ---------- trade globe ---------- */
+(function(){
+  const cv = document.getElementById('globe'); if(!cv) return;
+  const ctx = cv.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // real coastline path (equirectangular 720x360) used as a land mask
+  const LAND = "M224 288 L227 289 L230 289 L229 290 L227 290 L225 291 L222 291 L220 290 L218 290 L215 289 L213 288 L211 286 L215 287 L218 288 L219 287 L221 285 L223 285 L224 286 L224 288 Z M243 282 L244 283 L241 284 L239 285 L238 284 L240 282 L242 283 L243 282 Z M651 262 L653 262 L655 262 L657 262 L657 264 L656 265 L655 266 L654 267 L652 267 L651 265 L649 262 L651 262 Z M706 262 L708 262 L708 264 L706 266 L705 267 L706 268 L703 268 L702 270 L701 272 L700 273 L697 273 L693 272 L694 270 L697 268 L699 267 L701 266 L702 265 L703 264 L704 263 L706 261 L706 262 Z M709 252 L711 254 L712 255 L714 256 L716 255 L717 257 L716 258 L714 258 L714 260 L713 261 L712 263 L710 263 L710 261 L708 259 L709 258 L709 256 L709 253 L708 252 L706 250 L705 249 L707 250 L709 251 L709 252 Z M694 224 L693 225 L692 224 L691 223 L690 222 L688 221 L689 220 L690 221 L691 222 L693 223 L694 224 Z M460 207 L460 210 L461 211 L460 212 L459 211 L460 213 L459 214 L459 216 L458 218 L457 221 L456 225 L455 228 L454 230 L451 231 L448 230 L447 227 L447 224 L448 222 L449 220 L448 218 L448 215 L449 214 L449 212 L451 212 L453 212 L454 210 L455 209 L456 208 L458 206 L458 204 L459 205 L460 206 L460 207 Z M647 208 L648 209 L649 208 L650 209 L651 210 L651 213 L652 214 L652 216 L653 218 L655 219 L656 220 L658 221 L659 223 L659 225 L660 224 L661 225 L662 227 L663 228 L664 229 L666 231 L666 233 L666 235 L667 236 L667 238 L666 241 L666 243 L665 245 L663 246 L663 248 L662 249 L661 250 L660 253 L660 255 L659 256 L657 256 L655 256 L654 257 L653 258 L651 257 L650 256 L647 258 L645 257 L643 257 L641 256 L640 255 L640 253 L639 252 L638 251 L636 251 L637 250 L636 249 L635 250 L634 251 L635 249 L636 247 L634 248 L632 250 L630 249 L629 246 L626 244 L623 243 L619 243 L616 244 L614 245 L612 244 L610 245 L608 246 L607 248 L604 248 L601 248 L599 249 L597 249 L596 250 L593 250 L591 249 L590 248 L591 247 L592 244 L591 243 L590 241 L590 239 L589 238 L588 236 L587 233 L587 231 L588 232 L587 230 L587 228 L588 226 L587 225 L588 224 L591 223 L592 222 L593 221 L595 221 L598 221 L599 220 L602 219 L603 218 L604 216 L605 215 L606 213 L607 215 L608 214 L607 213 L608 212 L609 213 L609 211 L610 210 L611 209 L612 208 L614 208 L616 209 L617 210 L619 210 L620 207 L621 205 L622 204 L623 205 L625 204 L624 203 L625 202 L626 203 L627 204 L629 204 L631 204 L633 204 L634 205 L633 206 L632 207 L631 209 L633 211 L634 212 L637 214 L639 215 L642 215 L643 213 L643 210 L643 207 L644 205 L644 203 L645 201 L646 202 L646 204 L647 206 L647 208 Z M609 200 L607 201 L608 199 L610 198 L612 197 L614 197 L612 198 L610 199 L609 200 Z M606 196 L603 198 L600 198 L601 196 L603 197 L606 196 Z M577 194 L581 194 L582 193 L585 194 L586 195 L589 196 L591 197 L589 198 L587 197 L585 197 L583 197 L581 196 L579 195 L577 195 L573 195 L571 194 L572 192 L575 192 L576 193 L577 194 Z M664 191 L663 192 L660 193 L658 192 L657 191 L659 191 L660 190 L662 191 L663 190 L663 188 L665 189 L664 191 Z M621 186 L622 188 L620 187 L618 187 L616 187 L619 186 L621 186 Z M666 189 L665 188 L664 187 L663 186 L661 185 L663 186 L665 187 L666 188 L666 189 Z M628 182 L629 186 L631 187 L633 185 L635 183 L637 183 L638 184 L640 185 L642 185 L645 187 L649 188 L651 189 L652 190 L655 192 L656 193 L654 193 L654 195 L656 196 L657 198 L659 198 L660 199 L659 200 L662 201 L660 201 L658 201 L656 200 L654 199 L653 198 L652 196 L649 195 L648 196 L647 198 L645 199 L644 198 L642 198 L640 197 L638 196 L635 197 L636 195 L637 192 L636 191 L632 189 L630 189 L627 187 L626 188 L624 186 L626 185 L628 185 L627 184 L624 184 L622 183 L621 182 L624 181 L628 182 Z M610 177 L609 179 L607 180 L605 179 L602 179 L600 180 L602 183 L603 182 L607 181 L606 182 L605 183 L603 184 L605 186 L606 189 L606 191 L604 191 L605 189 L603 190 L603 188 L602 187 L602 185 L601 186 L601 188 L601 191 L599 191 L599 189 L599 187 L598 186 L598 184 L599 183 L600 180 L602 177 L603 178 L606 178 L608 178 L610 177 Z M617 178 L616 179 L616 181 L617 182 L615 181 L615 178 L615 176 L616 177 L617 178 Z M572 192 L569 192 L568 190 L565 188 L564 187 L563 186 L562 184 L560 181 L559 180 L558 178 L557 176 L555 175 L554 173 L553 172 L551 170 L552 169 L555 170 L557 171 L558 173 L559 174 L561 176 L563 176 L565 177 L566 179 L568 180 L567 181 L568 182 L569 184 L570 185 L572 186 L572 189 L572 192 Z M596 176 L598 178 L596 178 L595 180 L595 182 L593 183 L593 185 L592 188 L590 188 L589 187 L587 186 L584 187 L583 186 L580 186 L580 183 L578 181 L578 179 L578 177 L579 176 L581 177 L582 176 L583 175 L584 174 L586 174 L587 172 L588 171 L589 170 L591 169 L592 168 L593 166 L595 167 L597 169 L598 170 L597 171 L596 172 L595 174 L596 175 L596 176 Z M613 163 L613 166 L612 167 L612 165 L611 166 L611 168 L608 168 L608 166 L607 164 L606 165 L604 166 L605 164 L606 163 L608 164 L609 163 L610 162 L611 160 L612 161 L613 162 L613 163 Z M522 168 L520 166 L519 164 L520 160 L522 161 L523 163 L524 165 L523 167 L522 168 Z M597 161 L594 163 L595 162 L597 161 L598 159 L599 157 L599 159 L598 160 L597 161 Z M611 156 L612 158 L610 157 L611 159 L610 160 L610 158 L609 157 L610 156 L609 155 L611 156 Z M603 143 L604 144 L605 146 L603 148 L603 150 L605 152 L608 152 L608 154 L606 153 L605 154 L604 152 L602 153 L601 152 L602 151 L601 150 L600 149 L600 147 L601 148 L601 145 L601 143 L603 143 Z M215 140 L217 141 L218 140 L220 141 L222 141 L221 142 L223 143 L221 143 L220 144 L219 143 L217 145 L215 144 L213 144 L211 143 L213 143 L215 143 L214 142 L213 141 L214 140 L215 140 Z M581 143 L579 144 L577 143 L577 141 L578 140 L580 140 L582 140 L581 141 L581 143 Z M201 134 L203 135 L206 137 L207 138 L209 138 L210 139 L212 139 L211 140 L209 140 L207 140 L204 140 L206 139 L204 139 L203 138 L201 137 L200 136 L196 136 L194 135 L193 136 L191 136 L192 135 L193 134 L195 134 L197 134 L199 134 L201 134 Z M602 134 L601 136 L600 134 L601 131 L603 129 L604 130 L602 134 Z M407 109 L410 109 L412 109 L411 110 L413 109 L412 110 L409 110 L407 109 Z M391 104 L390 105 L391 106 L390 107 L389 106 L385 105 L387 104 L390 104 L391 104 Z M642 106 L641 107 L642 108 L641 110 L638 111 L634 111 L632 113 L630 112 L627 111 L624 112 L622 112 L624 114 L623 117 L621 118 L620 117 L621 115 L619 113 L621 113 L622 112 L624 111 L625 109 L629 109 L631 109 L633 105 L635 106 L638 104 L640 101 L640 99 L641 98 L643 97 L644 100 L644 102 L642 104 L642 106 Z M648 92 L651 91 L651 93 L648 94 L646 96 L643 95 L642 97 L640 97 L640 95 L641 93 L643 93 L643 90 L644 89 L646 91 L648 92 Z M236 82 L233 81 L231 80 L234 81 L236 81 L236 82 Z M113 83 L109 82 L106 81 L104 80 L103 79 L105 79 L107 79 L109 80 L110 81 L112 82 L113 83 Z M248 79 L246 80 L248 80 L250 81 L253 82 L252 83 L254 83 L255 85 L254 87 L252 86 L252 84 L249 86 L247 85 L245 85 L241 85 L242 83 L243 82 L245 79 L247 77 L249 77 L248 79 Z M647 79 L649 82 L646 81 L645 84 L647 86 L647 88 L645 87 L644 88 L644 86 L644 84 L644 82 L644 78 L643 76 L643 73 L645 72 L646 73 L647 75 L646 76 L647 79 Z M346 75 L343 77 L340 76 L342 74 L341 72 L343 71 L345 70 L347 70 L349 71 L348 72 L348 74 L346 75 Z M54 66 L52 67 L51 66 L52 64 L54 64 L56 65 L54 66 Z M354 63 L352 65 L354 65 L356 65 L354 68 L356 68 L358 71 L360 73 L361 74 L363 75 L362 76 L363 77 L361 78 L358 78 L355 79 L353 80 L351 79 L350 80 L348 80 L351 78 L353 77 L350 77 L349 76 L352 75 L350 74 L351 73 L354 73 L353 71 L350 70 L351 69 L350 68 L349 69 L349 67 L348 66 L348 64 L350 63 L352 63 L354 63 Z M17 52 L18 53 L21 53 L23 53 L22 54 L19 54 L17 53 L17 52 Z M190 49 L192 50 L194 50 L197 51 L198 52 L200 53 L198 53 L195 53 L194 52 L192 53 L189 54 L188 53 L186 53 L187 52 L188 50 L190 49 Z M331 47 L333 50 L330 51 L324 53 L320 53 L314 52 L316 51 L312 50 L316 50 L311 49 L313 47 L316 47 L319 49 L322 47 L324 48 L328 47 L331 47 Z M10 47 L11 46 L16 46 L20 48 L18 49 L15 49 L15 51 L12 51 L8 50 L6 49 L3 49 L0 48 L1 49 L0 50 L0 42 L5 44 L10 46 L10 47 Z M169 42 L167 42 L165 42 L163 42 L160 41 L162 41 L164 40 L166 40 L167 41 L169 42 Z M3 38 L0 38 L2 37 L5 37 L3 38 Z M179 41 L179 43 L182 41 L184 43 L183 44 L185 46 L187 44 L189 42 L189 40 L192 40 L195 41 L197 42 L198 43 L196 44 L197 45 L193 47 L191 47 L188 47 L186 50 L183 52 L180 52 L179 53 L178 54 L176 54 L174 56 L172 58 L171 60 L171 62 L174 62 L174 64 L175 66 L178 65 L182 66 L184 67 L185 68 L188 69 L190 69 L193 70 L195 70 L196 73 L197 76 L200 78 L202 77 L203 75 L202 72 L200 71 L204 70 L206 68 L207 67 L205 64 L203 62 L205 60 L204 58 L204 55 L209 55 L211 56 L212 55 L214 56 L217 57 L221 58 L221 60 L221 62 L223 62 L225 64 L228 62 L230 60 L231 59 L232 61 L235 64 L237 66 L236 67 L239 68 L241 70 L244 70 L245 71 L246 72 L248 73 L249 76 L247 76 L246 77 L242 78 L240 80 L237 80 L232 79 L229 79 L227 80 L226 81 L223 82 L220 85 L218 86 L223 83 L227 82 L230 82 L232 83 L230 84 L230 86 L231 88 L234 89 L237 88 L239 86 L240 88 L238 89 L233 91 L229 93 L228 91 L231 89 L228 89 L226 90 L224 91 L222 92 L220 93 L219 94 L218 95 L219 96 L220 97 L218 97 L216 97 L214 98 L216 98 L213 99 L212 98 L211 99 L212 101 L210 102 L209 101 L210 102 L209 104 L208 106 L209 104 L208 103 L207 102 L207 104 L207 106 L208 107 L209 109 L207 110 L205 111 L204 112 L202 113 L199 115 L198 116 L197 117 L197 119 L198 122 L199 123 L200 126 L200 128 L199 130 L197 129 L196 127 L195 125 L194 124 L195 123 L194 122 L193 120 L190 121 L188 120 L187 119 L185 119 L183 119 L181 120 L182 121 L181 122 L180 121 L178 122 L177 121 L175 121 L174 120 L172 121 L169 123 L167 123 L166 124 L165 125 L165 127 L166 128 L165 130 L164 134 L165 136 L166 139 L167 140 L168 142 L170 143 L171 144 L173 143 L176 143 L177 142 L178 141 L179 140 L179 138 L181 137 L183 137 L185 137 L186 138 L185 139 L185 141 L184 143 L183 145 L184 146 L183 147 L182 148 L183 149 L184 148 L186 148 L188 148 L190 148 L192 149 L194 150 L193 151 L193 153 L193 155 L193 157 L192 158 L193 159 L194 160 L195 161 L196 162 L198 162 L200 161 L202 161 L204 162 L205 163 L208 161 L209 160 L210 158 L212 157 L213 158 L215 157 L216 156 L217 155 L218 156 L217 157 L217 159 L216 160 L217 162 L218 160 L217 158 L220 157 L219 156 L221 157 L224 158 L225 159 L228 159 L229 160 L231 159 L234 159 L236 159 L235 160 L237 160 L238 161 L239 163 L242 164 L243 165 L244 166 L245 167 L246 168 L248 168 L250 168 L252 168 L253 169 L256 171 L257 172 L258 173 L259 176 L260 177 L259 180 L263 180 L263 182 L264 181 L267 182 L270 183 L271 184 L273 185 L277 186 L280 186 L283 187 L286 190 L289 190 L290 191 L290 193 L291 195 L290 198 L289 199 L286 202 L285 204 L283 206 L282 208 L282 211 L282 214 L281 216 L280 219 L278 222 L278 224 L276 225 L274 226 L271 227 L269 228 L267 228 L265 230 L263 232 L263 234 L263 236 L262 237 L261 238 L259 242 L257 244 L255 244 L255 246 L253 248 L252 249 L250 250 L248 250 L246 249 L244 249 L243 248 L246 251 L245 252 L247 253 L246 254 L245 256 L242 257 L238 258 L235 258 L236 259 L235 260 L236 261 L235 262 L232 262 L230 262 L230 264 L231 265 L232 264 L233 265 L231 266 L230 267 L229 269 L227 270 L225 271 L225 273 L227 274 L229 274 L228 276 L226 277 L224 280 L223 281 L222 284 L224 285 L221 285 L218 286 L218 288 L215 287 L213 286 L210 285 L209 283 L210 282 L209 281 L209 277 L210 275 L212 274 L209 273 L211 272 L211 268 L214 269 L215 265 L213 264 L213 267 L211 266 L212 264 L213 260 L214 259 L213 257 L213 254 L215 251 L216 248 L217 245 L217 242 L217 240 L217 238 L218 235 L219 231 L219 227 L220 223 L220 220 L219 217 L217 216 L213 213 L210 211 L208 209 L207 208 L206 204 L204 201 L202 197 L201 196 L200 194 L199 193 L198 192 L197 189 L198 188 L199 187 L200 185 L198 184 L198 182 L199 181 L200 179 L201 178 L202 177 L203 176 L204 175 L205 173 L206 172 L205 171 L205 169 L205 167 L204 166 L203 164 L204 163 L202 162 L200 163 L199 164 L200 165 L198 166 L198 164 L197 165 L196 164 L195 163 L194 164 L193 163 L192 161 L191 160 L190 161 L189 160 L188 159 L189 158 L188 157 L187 156 L186 155 L185 154 L184 153 L183 154 L182 153 L180 153 L179 152 L177 152 L176 151 L173 149 L172 148 L169 148 L167 149 L165 148 L162 147 L158 146 L157 145 L156 144 L153 143 L150 141 L149 140 L149 138 L149 136 L148 134 L146 132 L144 131 L143 130 L141 129 L141 127 L139 126 L139 124 L136 123 L135 121 L134 120 L134 118 L132 117 L130 116 L130 118 L131 120 L133 122 L134 123 L135 125 L136 126 L137 127 L137 129 L139 130 L140 131 L141 133 L140 134 L139 133 L138 132 L137 131 L136 129 L135 128 L134 127 L133 126 L131 126 L130 125 L132 124 L130 121 L128 120 L127 118 L126 115 L125 114 L124 113 L123 112 L121 111 L119 111 L117 108 L115 105 L114 104 L113 102 L112 100 L111 99 L112 98 L112 96 L111 94 L112 93 L112 89 L112 86 L111 85 L111 83 L114 84 L115 86 L115 84 L114 82 L110 80 L109 79 L105 78 L104 77 L104 75 L102 74 L101 73 L99 71 L98 70 L96 69 L96 67 L93 66 L92 64 L90 64 L87 64 L84 63 L80 61 L78 61 L75 60 L72 60 L68 59 L66 58 L64 59 L63 60 L61 61 L59 61 L57 62 L56 61 L57 59 L59 58 L56 59 L55 60 L52 61 L53 62 L52 64 L49 65 L47 65 L44 67 L43 68 L41 69 L39 69 L36 70 L34 71 L30 71 L32 70 L34 69 L36 68 L39 68 L40 67 L43 66 L45 65 L45 63 L46 62 L44 63 L43 62 L42 63 L41 62 L40 63 L39 62 L37 63 L36 61 L35 60 L32 60 L31 59 L29 59 L28 57 L29 56 L30 55 L31 54 L34 54 L35 53 L37 53 L38 52 L37 51 L38 50 L35 51 L33 51 L30 51 L27 51 L26 50 L24 49 L27 48 L31 47 L33 47 L32 48 L37 48 L35 47 L33 46 L31 45 L29 44 L26 43 L28 42 L31 42 L34 41 L36 39 L38 39 L42 38 L44 38 L47 37 L50 38 L51 39 L52 38 L56 38 L55 39 L59 39 L61 39 L65 40 L69 40 L73 40 L76 40 L78 41 L82 41 L85 42 L87 42 L89 41 L91 41 L94 41 L97 40 L100 40 L102 40 L104 39 L108 41 L111 40 L114 41 L115 40 L117 40 L120 41 L125 42 L128 42 L130 42 L132 43 L129 44 L133 45 L138 44 L140 44 L142 45 L144 44 L142 43 L144 43 L146 43 L148 42 L149 43 L151 44 L154 44 L157 45 L160 44 L163 44 L165 43 L168 44 L171 44 L172 42 L169 41 L167 40 L167 38 L170 36 L172 36 L174 37 L177 40 L175 41 L179 41 Z M132 34 L131 35 L135 34 L138 35 L140 34 L142 35 L144 37 L145 36 L143 34 L145 34 L147 34 L149 35 L150 37 L151 38 L154 39 L158 40 L155 41 L156 42 L152 42 L148 42 L146 42 L142 42 L136 43 L133 43 L132 42 L130 41 L128 42 L125 40 L127 40 L130 40 L133 40 L135 39 L131 39 L127 39 L124 39 L123 38 L128 37 L125 37 L121 37 L123 35 L130 33 L132 34 Z M151 33 L149 34 L146 33 L149 33 L151 33 Z M207 34 L205 34 L203 34 L201 35 L200 34 L198 33 L199 32 L204 33 L207 34 Z M187 34 L188 35 L190 33 L195 32 L199 35 L202 35 L204 35 L209 36 L212 36 L216 37 L218 38 L222 39 L224 40 L226 42 L222 43 L227 44 L230 44 L233 46 L236 46 L236 48 L232 50 L230 49 L227 47 L224 47 L224 49 L226 50 L229 51 L231 53 L230 55 L227 54 L222 53 L225 54 L227 55 L228 56 L222 55 L218 54 L216 53 L213 52 L210 51 L205 52 L203 51 L204 49 L208 49 L212 49 L211 48 L212 47 L215 45 L213 44 L210 43 L206 42 L208 42 L205 40 L202 40 L197 41 L190 40 L186 39 L183 39 L181 38 L183 38 L180 38 L180 36 L181 34 L183 33 L188 32 L187 34 Z M159 32 L162 33 L165 32 L166 33 L164 34 L167 35 L167 37 L163 37 L161 37 L155 35 L159 35 L157 33 L159 32 Z M647 34 L644 34 L640 33 L642 32 L644 32 L647 33 L647 34 Z M174 34 L171 36 L169 36 L168 34 L169 32 L171 32 L175 32 L179 32 L176 34 L174 34 Z M119 37 L114 38 L113 37 L108 36 L110 34 L112 33 L110 31 L117 31 L120 32 L125 32 L127 32 L129 33 L126 34 L122 35 L119 36 L119 37 Z M661 30 L659 31 L656 30 L652 30 L653 29 L656 29 L661 30 Z M173 30 L172 31 L169 31 L166 30 L167 29 L170 29 L172 29 L173 30 Z M650 29 L649 30 L641 30 L638 31 L634 29 L635 28 L638 28 L643 28 L650 29 Z M163 27 L165 27 L165 29 L164 30 L160 30 L158 30 L155 29 L155 27 L157 27 L160 27 L163 27 Z M144 28 L146 28 L148 28 L149 29 L147 30 L141 30 L136 31 L133 31 L136 30 L127 30 L125 30 L127 28 L129 27 L135 28 L138 29 L142 29 L139 27 L141 26 L143 27 L144 28 Z M475 39 L467 38 L463 37 L465 36 L465 34 L469 33 L467 33 L472 31 L471 30 L476 29 L482 27 L489 27 L492 26 L496 26 L498 27 L496 28 L489 29 L483 29 L477 31 L474 33 L471 35 L471 37 L475 39 Z M171 26 L173 26 L177 26 L179 27 L178 28 L180 28 L182 29 L184 29 L187 29 L190 29 L194 28 L198 29 L200 29 L199 31 L196 31 L194 31 L188 31 L184 31 L180 31 L175 30 L174 29 L172 27 L168 27 L166 26 L171 26 Z M128 25 L127 26 L126 27 L124 27 L120 28 L117 28 L114 28 L118 26 L122 25 L125 25 L128 25 Z M574 26 L576 27 L582 27 L587 28 L588 29 L586 30 L580 31 L579 32 L581 32 L584 32 L586 32 L587 33 L591 32 L598 33 L606 34 L607 33 L611 33 L614 33 L617 34 L618 35 L617 36 L619 38 L623 38 L625 36 L628 37 L631 37 L635 37 L640 37 L638 35 L641 34 L659 36 L661 37 L666 38 L674 38 L678 38 L680 39 L679 41 L682 41 L685 41 L688 41 L692 41 L696 41 L699 43 L702 42 L700 41 L701 40 L707 40 L711 40 L717 41 L720 42 L720 50 L717 51 L715 51 L717 52 L718 53 L719 54 L718 55 L715 55 L709 56 L707 57 L704 58 L701 59 L698 59 L693 60 L690 61 L687 60 L686 62 L684 64 L686 65 L686 68 L684 68 L683 69 L684 70 L681 71 L680 74 L677 74 L676 76 L674 78 L673 77 L672 74 L671 69 L672 66 L674 65 L677 64 L680 61 L684 59 L687 58 L689 55 L687 55 L685 57 L680 59 L679 56 L673 57 L668 60 L670 62 L666 62 L663 62 L660 61 L657 62 L651 61 L644 62 L638 66 L630 71 L633 71 L634 72 L636 72 L638 71 L640 72 L643 74 L643 76 L641 78 L641 80 L640 83 L637 86 L636 87 L634 90 L631 92 L630 93 L627 94 L625 93 L622 95 L620 96 L619 97 L618 99 L617 100 L615 100 L615 102 L617 103 L618 105 L619 106 L619 109 L618 110 L616 110 L615 111 L613 111 L613 109 L612 107 L614 106 L612 105 L611 104 L609 104 L610 103 L611 101 L609 101 L606 101 L604 102 L602 102 L603 101 L604 99 L603 98 L602 99 L599 100 L598 101 L596 102 L595 103 L596 104 L598 104 L599 106 L602 104 L603 105 L605 105 L602 107 L601 108 L599 109 L598 110 L600 111 L601 113 L602 115 L604 117 L603 119 L604 120 L604 122 L603 124 L601 126 L599 129 L597 131 L595 133 L592 134 L590 135 L588 136 L586 136 L584 137 L582 137 L581 139 L579 138 L580 137 L577 137 L573 139 L572 140 L571 142 L573 144 L575 147 L577 148 L578 149 L579 153 L578 157 L577 158 L574 159 L573 161 L570 163 L570 160 L569 159 L567 159 L566 158 L565 156 L563 155 L562 153 L560 153 L560 155 L559 158 L558 160 L558 162 L560 162 L561 163 L561 165 L562 166 L563 167 L564 168 L566 169 L567 170 L567 172 L567 174 L568 175 L568 177 L567 178 L565 176 L563 174 L561 172 L561 170 L560 169 L561 168 L560 167 L559 166 L558 164 L557 163 L557 160 L558 157 L557 156 L557 154 L556 153 L556 150 L555 148 L554 146 L553 147 L551 149 L550 148 L548 148 L549 145 L547 141 L546 140 L545 139 L544 138 L544 136 L543 134 L541 134 L541 136 L539 136 L538 137 L536 137 L534 137 L534 139 L533 140 L530 141 L528 143 L526 145 L524 146 L523 147 L522 148 L520 150 L520 152 L521 154 L520 156 L520 159 L518 161 L517 162 L516 163 L515 164 L513 162 L512 159 L511 157 L510 155 L509 152 L507 148 L506 144 L506 142 L506 139 L505 137 L502 138 L498 136 L499 135 L496 133 L495 132 L494 131 L493 129 L489 130 L486 130 L483 130 L479 129 L477 129 L475 129 L474 126 L471 126 L469 127 L467 126 L465 125 L463 124 L462 122 L460 120 L458 119 L457 120 L456 121 L457 123 L458 125 L459 126 L460 127 L460 129 L461 130 L462 128 L463 130 L463 132 L464 131 L465 132 L467 132 L469 130 L471 129 L472 128 L473 127 L473 129 L474 132 L476 133 L478 134 L479 135 L479 137 L478 138 L477 139 L476 140 L475 141 L476 142 L474 142 L473 143 L471 144 L471 146 L468 146 L467 147 L465 147 L464 148 L462 150 L459 151 L457 152 L455 153 L453 153 L451 153 L450 154 L449 155 L447 155 L446 154 L447 152 L446 150 L445 149 L446 148 L445 146 L444 144 L442 143 L442 141 L440 140 L438 137 L438 135 L437 133 L436 132 L435 131 L434 130 L433 128 L432 127 L431 125 L430 124 L430 122 L429 123 L428 124 L426 123 L425 120 L425 123 L427 125 L428 128 L429 129 L430 130 L431 132 L431 134 L433 136 L434 138 L434 140 L435 143 L437 144 L438 146 L439 148 L440 149 L442 151 L443 152 L445 153 L446 155 L447 156 L445 157 L447 157 L448 159 L451 159 L453 158 L455 158 L457 157 L459 157 L461 157 L462 156 L462 158 L461 162 L460 164 L459 166 L457 169 L455 172 L453 174 L451 176 L448 178 L446 179 L444 182 L443 183 L442 184 L441 185 L440 187 L439 189 L437 192 L438 193 L439 194 L438 195 L439 196 L438 197 L439 198 L440 200 L441 201 L441 204 L441 208 L442 209 L441 211 L440 212 L439 213 L437 214 L435 215 L433 217 L432 218 L430 219 L429 221 L430 223 L431 224 L431 226 L431 228 L430 229 L428 230 L426 231 L425 232 L426 233 L425 235 L425 237 L424 238 L423 239 L422 240 L421 241 L420 242 L418 244 L416 246 L413 247 L412 248 L410 248 L407 248 L405 248 L403 249 L401 249 L400 250 L398 249 L397 248 L396 245 L396 243 L395 241 L394 240 L393 237 L391 236 L390 234 L390 232 L389 231 L389 228 L389 225 L388 223 L387 222 L386 219 L385 218 L384 216 L383 215 L383 213 L384 212 L384 210 L385 207 L387 205 L387 203 L387 201 L386 200 L386 198 L386 195 L385 194 L384 193 L385 192 L384 190 L382 188 L380 186 L379 184 L378 182 L379 179 L379 175 L380 174 L379 173 L378 172 L377 171 L375 171 L373 172 L372 171 L371 170 L370 169 L369 167 L367 167 L365 167 L364 168 L362 168 L359 169 L358 170 L356 171 L354 170 L352 170 L348 170 L347 171 L345 171 L342 170 L340 169 L338 168 L337 166 L335 165 L334 164 L334 162 L333 161 L332 160 L331 159 L330 158 L329 157 L327 156 L326 154 L327 153 L326 151 L327 149 L327 147 L328 144 L327 142 L327 140 L326 138 L326 136 L327 135 L328 133 L329 131 L330 130 L331 127 L334 125 L335 124 L337 124 L338 122 L341 120 L340 118 L341 116 L343 114 L345 113 L346 112 L348 110 L348 108 L350 108 L351 109 L353 109 L355 110 L358 109 L360 108 L361 107 L363 107 L366 106 L370 106 L371 107 L373 106 L375 106 L377 106 L379 105 L380 106 L382 106 L381 107 L382 109 L380 111 L381 112 L382 113 L383 114 L385 114 L388 115 L390 115 L391 117 L393 118 L396 118 L398 119 L400 118 L400 116 L402 115 L403 114 L406 115 L407 116 L410 116 L413 117 L415 117 L417 118 L419 118 L420 117 L422 117 L424 118 L426 118 L428 118 L429 117 L430 116 L430 114 L431 112 L432 111 L432 109 L432 107 L429 106 L428 108 L425 108 L423 107 L421 107 L419 108 L417 107 L415 107 L414 105 L413 104 L414 102 L412 101 L415 99 L418 99 L422 98 L425 97 L427 96 L430 96 L434 97 L437 98 L439 98 L441 98 L443 97 L443 95 L442 94 L440 93 L437 91 L435 91 L433 90 L435 89 L436 88 L435 87 L438 86 L436 86 L434 87 L432 87 L430 87 L430 89 L433 89 L430 90 L428 91 L427 90 L425 89 L427 88 L423 87 L421 87 L419 89 L418 90 L417 93 L415 95 L416 96 L418 97 L415 98 L414 99 L413 100 L412 99 L411 98 L407 99 L409 100 L407 100 L406 99 L406 101 L407 102 L408 104 L406 104 L407 105 L406 107 L403 106 L402 103 L401 102 L400 101 L399 99 L399 97 L398 96 L397 95 L395 94 L392 93 L390 92 L391 91 L390 90 L388 90 L387 89 L385 89 L385 91 L387 93 L388 94 L390 96 L392 96 L394 98 L397 99 L395 99 L393 100 L394 101 L393 102 L392 104 L392 102 L391 101 L390 100 L389 99 L388 98 L386 97 L384 97 L382 95 L381 94 L380 92 L378 91 L377 92 L375 93 L373 94 L369 93 L366 94 L366 96 L364 98 L362 98 L361 99 L360 100 L359 101 L360 103 L359 105 L357 105 L356 107 L353 107 L351 107 L349 108 L348 107 L347 106 L345 106 L343 106 L342 103 L341 101 L342 100 L342 98 L342 96 L341 94 L344 93 L346 93 L349 93 L351 93 L353 93 L356 93 L357 92 L358 88 L356 86 L354 85 L351 84 L353 82 L357 83 L356 80 L358 81 L363 80 L363 78 L365 78 L367 77 L369 74 L372 73 L374 73 L376 73 L378 72 L377 71 L376 69 L376 67 L377 66 L379 66 L380 65 L381 66 L382 67 L381 68 L379 69 L380 70 L382 71 L384 72 L385 71 L387 72 L390 72 L393 71 L395 70 L397 71 L399 71 L400 70 L403 70 L402 68 L402 66 L403 65 L405 64 L407 66 L409 64 L408 63 L407 62 L409 61 L412 61 L414 61 L416 61 L418 60 L416 59 L413 59 L409 60 L406 60 L405 59 L403 59 L403 57 L402 55 L403 54 L405 52 L409 50 L411 50 L408 48 L404 49 L402 50 L403 51 L400 53 L396 55 L394 57 L396 59 L398 60 L396 62 L394 63 L393 66 L392 68 L389 68 L388 69 L386 69 L385 67 L384 65 L382 62 L381 61 L377 63 L374 64 L371 63 L371 61 L370 56 L372 55 L377 53 L381 51 L385 48 L390 44 L393 43 L398 40 L403 39 L406 40 L409 38 L413 38 L416 38 L423 39 L420 40 L422 41 L424 40 L428 41 L433 42 L441 44 L442 45 L440 47 L437 48 L428 46 L426 47 L430 48 L430 51 L432 52 L434 52 L433 50 L439 51 L441 50 L440 49 L444 47 L446 47 L448 48 L449 46 L447 45 L448 44 L447 43 L453 43 L454 45 L451 45 L453 47 L456 46 L460 44 L467 42 L469 42 L467 44 L469 44 L471 43 L475 43 L478 42 L480 43 L482 42 L480 41 L481 40 L487 41 L490 42 L497 44 L498 43 L496 42 L494 41 L495 40 L493 39 L497 36 L498 34 L500 34 L505 34 L506 36 L504 37 L505 38 L506 39 L505 42 L507 43 L506 45 L503 47 L505 48 L506 47 L508 46 L510 44 L509 43 L510 42 L508 42 L507 41 L509 39 L506 37 L510 36 L509 34 L511 35 L511 37 L513 38 L512 36 L515 35 L519 35 L523 36 L521 35 L521 33 L525 32 L529 32 L534 32 L532 31 L534 30 L537 30 L541 29 L546 28 L552 28 L558 27 L562 27 L564 25 L569 25 L572 25 L569 26 L574 26 Z M458 97 L459 99 L461 99 L459 100 L458 102 L458 105 L460 105 L462 106 L465 107 L468 106 L467 104 L468 102 L466 101 L467 100 L465 100 L466 98 L468 99 L469 98 L468 97 L467 96 L466 98 L465 96 L465 94 L463 94 L462 92 L461 91 L463 91 L464 89 L466 89 L466 86 L464 86 L462 86 L460 87 L458 87 L457 88 L455 89 L453 91 L455 93 L457 96 L458 97 Z M172 25 L168 25 L167 24 L171 24 L173 25 L172 25 Z M140 25 L136 25 L133 25 L135 24 L137 24 L140 24 L140 25 Z M409 24 L405 25 L401 25 L403 24 L402 23 L406 23 L407 24 L409 24 Z M141 23 L138 23 L135 23 L137 22 L141 23 Z M168 24 L165 24 L163 23 L165 22 L169 23 L168 24 Z M160 23 L161 24 L157 24 L154 23 L150 23 L152 23 L149 22 L153 22 L158 22 L160 23 Z M570 23 L559 24 L563 22 L564 21 L566 21 L571 23 L570 23 Z M397 21 L403 22 L398 23 L397 24 L395 25 L394 26 L392 26 L388 25 L386 24 L382 22 L381 21 L386 20 L387 21 L390 21 L391 20 L394 20 L397 21 Z M411 19 L415 20 L412 21 L406 21 L400 21 L397 20 L395 19 L401 19 L404 19 L406 19 L411 19 Z M462 19 L460 19 L458 19 L455 20 L453 20 L454 19 L450 19 L454 18 L457 18 L460 18 L463 19 L462 19 Z M560 22 L556 22 L550 22 L547 21 L545 20 L542 19 L548 18 L552 17 L556 19 L560 20 L560 22 Z M186 21 L188 21 L186 22 L182 23 L178 24 L174 23 L172 22 L174 21 L170 21 L168 21 L167 20 L168 19 L169 18 L171 18 L175 17 L178 19 L181 19 L184 19 L186 21 Z M223 14 L228 14 L233 14 L236 15 L231 16 L226 17 L229 17 L224 18 L221 19 L218 20 L214 21 L212 21 L206 21 L209 22 L207 24 L204 24 L203 25 L200 26 L204 26 L199 28 L194 27 L188 27 L185 27 L181 27 L184 26 L183 24 L185 24 L190 25 L187 24 L184 23 L186 22 L189 22 L190 21 L187 21 L186 19 L192 20 L196 19 L192 19 L185 19 L181 18 L180 17 L177 17 L180 16 L182 16 L186 15 L189 15 L191 15 L194 15 L195 14 L198 14 L201 14 L207 14 L209 14 L214 14 L219 14 L223 14 Z M306 13 L318 15 L315 15 L307 15 L296 16 L304 16 L310 16 L314 16 L316 17 L314 18 L319 17 L328 16 L334 17 L336 17 L327 19 L320 20 L325 20 L322 21 L321 22 L321 25 L323 26 L320 26 L317 27 L320 28 L321 30 L319 30 L321 31 L317 32 L319 32 L318 33 L316 33 L313 33 L315 35 L311 35 L313 36 L316 37 L316 39 L313 39 L311 38 L309 37 L310 38 L307 40 L313 40 L315 40 L310 41 L305 43 L299 44 L296 44 L294 45 L292 47 L287 48 L283 49 L280 49 L279 50 L279 52 L278 53 L274 55 L275 56 L274 58 L273 60 L270 60 L267 58 L263 58 L262 57 L260 55 L257 53 L256 51 L255 50 L253 48 L253 46 L254 43 L257 43 L258 42 L258 40 L256 41 L253 41 L251 41 L250 39 L251 38 L253 38 L257 39 L254 38 L252 37 L250 37 L248 37 L251 35 L249 34 L248 33 L245 31 L243 30 L237 28 L233 28 L228 28 L223 28 L221 27 L217 26 L222 25 L226 25 L218 25 L213 24 L214 23 L221 22 L229 21 L224 20 L226 19 L233 18 L236 17 L235 16 L239 16 L246 16 L252 16 L254 16 L259 15 L264 16 L267 16 L271 17 L266 16 L273 14 L280 14 L283 13 L290 13 L306 13 Z";
+
+  let W,H,DPR,cx,cy,R, base=[];
+  const N = 5200, GOLD = Math.PI*(3-Math.sqrt(5));
+  let landData=null;
+
+  // build a land-sampling bitmap once
+  (function buildMask(){
+    const m = document.createElement('canvas'); m.width=720; m.height=360;
+    const mc = m.getContext('2d');
+    mc.fillStyle='#fff'; mc.fill(new Path2D(LAND));
+    landData = mc.getImageData(0,0,720,360).data;
+  })();
+  function isLand(lon,lat){
+    const px = Math.floor((lon+180)/360*720), py = Math.floor((90-lat)/180*360);
+    if(px<0||px>=720||py<0||py>=360) return false;
+    return landData[(py*720+px)*4+3] > 40;
+  }
+  // fibonacci sphere, keep land points only
+  (function buildDots(){
+    base=[];
+    for(let i=0;i<N;i++){
+      const y = 1-(i/(N-1))*2, r=Math.sqrt(1-y*y), th=i*GOLD;
+      const x=Math.cos(th)*r, z=Math.sin(th)*r;
+      const lat=Math.asin(y)*180/Math.PI, lon=Math.atan2(z,x)*180/Math.PI;
+      if(isLand(lon,lat)) base.push([x,y,z]);
+    }
+  })();
+
+  // world ports (partners) & reporting countries (lon,lat)
+  const PORTS = [
+    {n:'Shanghai',c:[121.5,31.2]},{n:'Singapore',c:[103.8,1.35]},{n:'Rotterdam',c:[4.5,51.9]},
+    {n:'Hamburg',c:[10,53.5]},{n:'New York',c:[-74,40.7]},{n:'Los Angeles',c:[-118.2,34]},
+    {n:'Santos',c:[-46.3,-23.9]},{n:'Lagos',c:[3.4,6.5]},{n:'Jebel Ali',c:[55.3,25.2]},
+    {n:'Mumbai',c:[72.8,19.1]},{n:'Tokyo',c:[139.7,35.7]},{n:'Durban',c:[31,-29.9]},
+    {n:'Panamá',c:[-79.5,9]},{n:'Buenos Aires',c:[-58.4,-34.6]}
+  ];
+  const HOMES = {
+    CAN:{n:'Canada',c:[-75.7,45.4]},
+    FRA:{n:'France',c:[2.35,48.85]},
+    NGA:{n:'Nigeria',c:[7.5,9.05]},
+    CHN:{n:'Chine',en:'China',c:[116.4,39.9]},
+    BRA:{n:'Brésil',en:'Brazil',c:[-47.9,-15.8]},
+    TGO:{n:'Togo',c:[1.2,6.1]}
+  };
+  function toVec(lon,lat){const la=lat*Math.PI/180, lo=lon*Math.PI/180;
+    return [Math.cos(la)*Math.cos(lo), Math.sin(la), Math.cos(la)*Math.sin(lo)];}
+  PORTS.forEach(p=>p.v=toVec(p.c[0],p.c[1]));
+  Object.values(HOMES).forEach(h=>h.v=toVec(h.c[0],h.c[1]));
+
+  // reporting-country mode: every flow radiates from the selected home
+  let home=HOMES.CAN, arcs=[], targetYaw=null;
+  const screenNodes=[]; let hover=null;
+  function setHome(key){
+    home = HOMES[key];
+    arcs = PORTS.map((p,i)=>({
+      a: i%2 ? p.v : home.v,          // even: export (home → port), odd: import (port → home)
+      b: i%2 ? home.v : p.v,
+      col: i%2 ? '236,163,61' : '45,212,191',
+      t: Math.random(), sp: 0.0016+Math.random()*0.0018
+    }));
+    targetYaw = home.c[0]*Math.PI/180 - Math.PI/2;   // rotate the globe to face the country
+    document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on', b.dataset.home===key));
+  }
+
+  function slerp(a,b,t){
+    let d=a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; d=Math.max(-1,Math.min(1,d));
+    const o=Math.acos(d), so=Math.sin(o);
+    if(so<1e-4) return a;
+    const k1=Math.sin((1-t)*o)/so, k2=Math.sin(t*o)/so;
+    return [a[0]*k1+b[0]*k2, a[1]*k1+b[1]*k2, a[2]*k1+b[2]*k2];
+  }
+
+  const TILT = 0.34; let yaw = -0.3;
+  function rot(v){ // yaw around Y then fixed tilt around X
+    const x=v[0],y=v[1],z=v[2];
+    const cx1=Math.cos(yaw), sx1=Math.sin(yaw);
+    let X=x*cx1+z*sx1, Z=-x*sx1+z*cx1, Y=y;
+    const cf=Math.cos(TILT), sf=Math.sin(TILT);
+    const Y2=Y*cf - Z*sf, Z2=Y*sf + Z*cf;
+    return [X, Y2, Z2];
+  }
+
+  function resize(){
+    DPR = Math.max(1, Math.min(window.devicePixelRatio||1, 2));
+    W=cv.clientWidth; H=cv.clientHeight;
+    cv.width=W*DPR; cv.height=H*DPR; ctx.setTransform(DPR,0,0,DPR,0,0);
+    cx = W>860 ? W*0.63 : W*0.5;
+    cy = H*0.5;
+    R = Math.min(W,H) * (W>860?0.46:0.42);
+    R = Math.min(R, H*0.5);
+  }
+  addEventListener('resize', resize); resize();
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // ambient sphere glow
+    const g = ctx.createRadialGradient(cx,cy,R*0.2,cx,cy,R*1.25);
+    g.addColorStop(0,'rgba(20,120,150,.16)'); g.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,R*1.25,0,7); ctx.fill();
+
+    // land dots
+    for(let i=0;i<base.length;i++){
+      const p=rot(base[i]); if(p[2]<=0) continue;
+      const sx=cx+R*p[0], sy=cy-R*p[1];
+      const depth=p[2];
+      const a=0.2+depth*0.72;
+      ctx.fillStyle=`rgba(148,214,228,${a})`;
+      const s = depth>0.72?1.7:1.25;
+      ctx.fillRect(sx,sy,s,s);
+    }
+
+    // subtle rim
+    ctx.strokeStyle='rgba(120,200,214,.18)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.arc(cx,cy,R,0,7); ctx.stroke();
+
+    // arcs
+    const STEPS=44;
+    for(const arc of arcs){
+      arc.t += arc.sp; if(arc.t>1.25) arc.t -= 1.35;
+      let prev=null, headX=null,headY=null,headVis=false;
+      for(let s=0;s<=STEPS;s++){
+        const t=s/STEPS;
+        const m=slerp(arc.a,arc.b,t);
+        const alt=1+Math.sin(Math.PI*t)*0.28;
+        const p=rot([m[0]*alt,m[1]*alt,m[2]*alt]);
+        const sx=cx+R*p[0], sy=cy-R*p[1], vis=p[2]>-0.02;
+        // draw trailing part up to the moving head
+        if(prev && vis && prev.vis && t<=arc.t){
+          const fade = Math.max(0, 1-(arc.t-t)*3.2); // comet tail
+          if(fade>0.02){
+            ctx.strokeStyle=`rgba(${arc.col},${0.16+fade*0.7})`;
+            ctx.lineWidth=1.1+fade*1.4;
+            ctx.beginPath(); ctx.moveTo(prev.sx,prev.sy); ctx.lineTo(sx,sy); ctx.stroke();
+          }
+        }
+        // faint full path
+        if(prev && vis && prev.vis){
+          ctx.strokeStyle=`rgba(${arc.col},.06)`; ctx.lineWidth=1;
+          ctx.beginPath(); ctx.moveTo(prev.sx,prev.sy); ctx.lineTo(sx,sy); ctx.stroke();
+        }
+        if(Math.abs(t-arc.t)<0.02 && vis){ headX=sx; headY=sy; headVis=true; }
+        prev={sx,sy,vis};
+      }
+      if(headVis && arc.t<=1){
+        ctx.fillStyle=`rgba(${arc.col},1)`;
+        ctx.shadowColor=`rgba(${arc.col},.9)`; ctx.shadowBlur=10;
+        ctx.beginPath(); ctx.arc(headX,headY,2.4,0,7); ctx.fill();
+        ctx.shadowBlur=0;
+      }
+    }
+
+    // port nodes (screen positions recorded for hover)
+    screenNodes.length = 0;
+    for(const port of PORTS){
+      const p=rot(port.v); if(p[2]<=0.02) continue;
+      const sx=cx+R*p[0], sy=cy-R*p[1];
+      screenNodes.push({x:sx,y:sy,n:port.n});
+      ctx.fillStyle='rgba(234,242,251,.9)';
+      ctx.beginPath(); ctx.arc(sx,sy,1.8,0,7); ctx.fill();
+      ctx.strokeStyle='rgba(45,212,191,.5)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.arc(sx,sy,4.5,0,7); ctx.stroke();
+    }
+    // reporting country: emphasized + always labelled
+    {
+      const p=rot(home.v);
+      if(p[2]>0){
+        const sx=cx+R*p[0], sy=cy-R*p[1];
+        const name = (document.body.classList.contains('en') || document.body.classList.contains('pt')) && home.en ? home.en : home.n;
+        screenNodes.push({x:sx,y:sy,n:name});
+        ctx.fillStyle='#fff';
+        ctx.beginPath(); ctx.arc(sx,sy,3.2,0,7); ctx.fill();
+        ctx.strokeStyle='rgba(45,212,191,.95)'; ctx.lineWidth=1.6;
+        ctx.beginPath(); ctx.arc(sx,sy,7,0,7); ctx.stroke();
+        ctx.font='600 12px "IBM Plex Mono",monospace'; ctx.textAlign='left';
+        ctx.fillStyle='rgba(234,242,251,.95)';
+        ctx.fillText(name, sx+13, sy+4);
+      }
+    }
+    // hover label near the closest node
+    if(hover){
+      let best=null, bd=225;
+      for(const nd of screenNodes){ const dx=nd.x-hover.x, dy=nd.y-hover.y, d=dx*dx+dy*dy; if(d<bd){bd=d;best=nd;} }
+      heroEl.style.cursor = best ? 'pointer' : '';
+      if(best){
+        ctx.font='600 11.5px "IBM Plex Mono",monospace';
+        const w = ctx.measureText(best.n).width+18;
+        const bx=best.x-w/2, by=best.y-34;
+        ctx.fillStyle='rgba(0,6,15,.88)';
+        ctx.strokeStyle='rgba(45,212,191,.55)'; ctx.lineWidth=1;
+        ctx.beginPath();
+        if(ctx.roundRect) ctx.roundRect(bx,by,w,22,6); else ctx.rect(bx,by,w,22);
+        ctx.fill(); ctx.stroke();
+        ctx.fillStyle='rgba(234,242,251,.96)'; ctx.textAlign='center';
+        ctx.fillText(best.n, best.x, by+15);
+      }
+    }
+
+    if(!reduce){
+      if(targetYaw!==null){
+        let d=(targetYaw-yaw)%(Math.PI*2);
+        if(d>Math.PI) d-=Math.PI*2; if(d<-Math.PI) d+=Math.PI*2;
+        yaw += d*0.05;
+        if(Math.abs(d)<0.01) targetYaw=null;
+      } else yaw += 0.0016;
+      requestAnimationFrame(draw);
+    }
+  }
+
+  const heroEl = document.querySelector('.hero');
+  heroEl.addEventListener('mousemove', e=>{
+    const r = cv.getBoundingClientRect();
+    hover = {x:e.clientX-r.left, y:e.clientY-r.top};
+    if(reduce) draw();
+  });
+  heroEl.addEventListener('mouseleave', ()=>{ hover=null; heroEl.style.cursor=''; if(reduce) draw(); });
+  document.querySelectorAll('.chip').forEach(b=>b.addEventListener('click', ()=>{
+    setHome(b.dataset.home);
+    if(reduce){ yaw=targetYaw; targetYaw=null; draw(); }
+  }));
+
+  setHome('CAN');
+  yaw = targetYaw; targetYaw = null;          // start already facing the default country
+  if(reduce){ draw(); } else { requestAnimationFrame(draw); }
+})();
+</script>
+</body>
+</html>
