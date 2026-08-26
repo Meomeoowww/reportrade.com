@@ -104,7 +104,8 @@
   .sec{padding:128px 0;position:relative}
   .kick{font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--teal-d)}
   .h2{font-size:clamp(32px,4.4vw,52px);color:var(--ink);margin:14px 0 0;letter-spacing:-.03em;max-width:20ch}
-  .sub{color:var(--muted);max-width:600px;margin:18px 0 0;font-size:18.5px;line-height:1.5}
+  .sub{color:var(--muted);max-width:600px;margin:18px 0 0;font-size:18.5px;line-height:1.5;text-align:justify;hyphens:auto}
+  @media(max-width:640px){.sub{text-align:left}}
   .head{margin-bottom:64px}
   .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
   .reveal.in{opacity:1;transform:none}
@@ -161,7 +162,8 @@
   .recon .v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:23px;color:var(--cloud);margin-top:10px;font-weight:600}
   .recon .v.s{color:var(--teal)}
   .recon .m{font-family:var(--mono);font-size:11px;color:var(--teal);margin-top:8px;letter-spacing:.05em}
-  .proof .note{color:var(--cloud-mut);font-size:15px;max-width:780px;line-height:1.6}
+  .proof .note{color:var(--cloud-mut);font-size:15px;max-width:780px;line-height:1.6;text-align:justify;hyphens:auto}
+  @media(max-width:640px){.proof .note{text-align:left}}
   .proof .note b{color:var(--cloud)} .proof .note em{color:var(--cloud-mut)}
 
   /* audience */
@@ -335,8 +337,8 @@
 <section class="sec"><div class="wrap">
   <div class="head reveal">
     <div class="kick"><span data-fr>Pour qui</span><span data-en>Who it's for</span><span data-pt>Para quem</span></div>
-    <h2 class="h2"><span data-fr>Producteurs et analystes du commerce.</span><span data-en>Trade-data producers and analysts.</span><span data-pt>Produtores e analistas de dados comerciais.</span></h2>
-    <p class="sub"><span data-fr>Coin d'entrée : l'Afrique francophone, mais le produit sert tout acteur du commerce, sur standards HS &amp; ISO.</span><span data-en>Entry wedge: francophone Africa, but it serves any trade-data actor, on HS &amp; ISO standards.</span><span data-pt>Porta de entrada : África francófona, mas o produto serve qualquer ator do comércio, sobre normas HS &amp; ISO.</span></p>
+    <h2 class="h2"><span data-fr>Institutions qui éclairent le commerce.</span><span data-en>Institutions informing trade.</span><span data-pt>Instituições que informam o comércio.</span></h2>
+    <p class="sub"><span data-fr>Conçu pour toute institution qui transforme la donnée commerciale en décision, sur standards internationaux HS &amp; ISO, dans n'importe quel pays et n'importe quelle langue.</span><span data-en>Built for any institution that turns trade data into public decision, on international HS &amp; ISO standards, in any country and any language.</span><span data-pt>Construído para qualquer instituição que transforma dados comerciais em decisão pública, sobre normas internacionais HS &amp; ISO, em qualquer país e qualquer língua.</span></p>
   </div>
   <div class="aud stagger">
     <div><b><span data-fr>Instituts de statistique</span><span data-en>Statistics offices</span><span data-pt>Institutos de estatística</span></b><span data-fr>Un rapport régulier, dans leur langue, sans exposer la microdonnée.</span><span data-en>A regular report, in their language, without exposing microdata.</span><span data-pt>Um relatório regular, na sua língua, sem expor os microdados.</span></div>
