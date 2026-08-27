@@ -166,6 +166,20 @@
   @media(max-width:640px){.proof .note{text-align:left}}
   .proof .note b{color:var(--cloud)} .proof .note em{color:var(--cloud-mut)}
 
+  /* sample report */
+  .sample{background:var(--bone2)}
+  .sample-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:48px}
+  @media(max-width:760px){.sample-grid{grid-template-columns:1fr}}
+  .sample-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:32px 30px}
+  .sample-card h3{font-size:21px;color:var(--ink);margin:0 0 16px;font-weight:600}
+  .sample-card ul{margin:0;padding:0;list-style:none}
+  .sample-card li{margin:12px 0;padding-left:26px;position:relative;color:var(--muted);line-height:1.55;font-size:15px}
+  .sample-card li::before{content:"→";position:absolute;left:0;color:var(--teal);font-weight:700}
+  .sample-card .num{font-family:var(--mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--teal-d);margin-bottom:12px}
+  .sample-cta{margin-top:26px;background:var(--space0);color:var(--cloud);border-radius:16px;padding:26px 30px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+  .sample-cta p{margin:0;color:var(--cloud-mut);font-size:15.5px;line-height:1.5;max-width:560px}
+  .sample-cta p b{color:#fff;font-weight:600}
+
   /* audience */
   .aud{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
   @media(max-width:820px){.aud{grid-template-columns:1fr 1fr}}
@@ -332,6 +346,39 @@
     <span data-en>ReporTrade's totals reproduce Statistics Canada's official <b>customs-basis</b> totals <b>exactly</b> (Q1-2024). A <b>same-basis, same-source</b> check : ingestion fidelity, not a balance-of-payments cross-estimate. Adapters exercised on sample datasets (customs files, Eurotrace, Comtrade). <em>No named client production is claimed.</em></span>
     <span data-pt>Os totais do ReporTrade reproduzem <b>exatamente</b> os totais oficiais do Statistics Canada em <b>base aduaneira</b> (T1-2024). Controlo <b>mesma base, mesma fonte</b> : fidelidade de ingestão, não uma reestimação da balança de pagamentos. Adaptadores testados em conjuntos de exemplo (ficheiros aduaneiros, Eurotrace, Comtrade). <em>Nenhuma produção de cliente nomeada é reivindicada.</em></span>
   </p>
+</div></section>
+
+<!-- ===================== SAMPLE REPORT ===================== -->
+<section class="sec sample"><div class="wrap">
+  <div class="head reveal">
+    <div class="kick"><span data-fr>Rapport exemple</span><span data-en>Sample report</span><span data-pt>Relatório exemplo</span></div>
+    <h2 class="h2"><span data-fr>Testez sur vos propres données.</span><span data-en>Test it on your own data.</span><span data-pt>Teste com os seus próprios dados.</span></h2>
+    <p class="sub"><span data-fr>Pas de démo enregistrée ni de maquette : un vrai rapport, généré à partir de vos flux, que vous pouvez confronter à vos publications actuelles.</span><span data-en>No canned demo or mock-up: a real report, generated from your flows, that you can compare against your current publications.</span><span data-pt>Sem demonstração gravada nem maqueta: um relatório real, gerado a partir dos seus fluxos, que pode comparar com as suas publicações atuais.</span></p>
+  </div>
+  <div class="sample-grid stagger">
+    <div class="sample-card">
+      <div class="num" data-fr>Ce que vous envoyez</div><div class="num" data-en>What you send</div><div class="num" data-pt>O que envia</div>
+      <h3><span data-fr>Un échantillon de vos données</span><span data-en>A sample of your data</span><span data-pt>Uma amostra dos seus dados</span></h3>
+      <ul>
+        <li><span data-fr>Un fichier douanier (Eurotrace, ASYCUDA), un CSV, ou un simple extrait UN Comtrade.</span><span data-en>A customs file (Eurotrace, ASYCUDA), a CSV, or a simple UN Comtrade extract.</span><span data-pt>Um ficheiro aduaneiro (Eurotrace, ASYCUDA), um CSV, ou um simples extrato do UN Comtrade.</span></li>
+        <li><span data-fr>Un trimestre ou une année suffisent pour un premier rapport.</span><span data-en>One quarter or one year is enough for a first report.</span><span data-pt>Um trimestre ou um ano bastam para um primeiro relatório.</span></li>
+        <li><span data-fr>Transmission par courriel ou lien sécurisé, vos données restent confidentielles.</span><span data-en>Sent by email or secure link; your data stays confidential.</span><span data-pt>Envio por correio eletrónico ou ligação segura; os seus dados permanecem confidenciais.</span></li>
+      </ul>
+    </div>
+    <div class="sample-card">
+      <div class="num" data-fr>Ce que vous recevez</div><div class="num" data-en>What you receive</div><div class="num" data-pt>O que recebe</div>
+      <h3><span data-fr>Un rapport complet, prêt à publier</span><span data-en>A complete, publish-ready report</span><span data-pt>Um relatório completo, pronto a publicar</span></h3>
+      <ul>
+        <li><span data-fr>7 sections narrées, 13 graphiques, 11 tableaux, au format PDF, Word ou HTML.</span><span data-en>7 narrated sections, 13 charts, 11 tables, in PDF, Word or HTML.</span><span data-pt>7 secções narradas, 13 gráficos, 11 tabelas, em PDF, Word ou HTML.</span></li>
+        <li><span data-fr>Dans la langue de votre choix, avec vos totaux vérifiés ligne par ligne.</span><span data-en>In the language of your choice, with your totals checked row by row.</span><span data-pt>Na língua da sua escolha, com os seus totais verificados linha a linha.</span></li>
+        <li><span data-fr>Livré sous quelques jours, sans engagement.</span><span data-en>Delivered within a few days, no strings attached.</span><span data-pt>Entregue em poucos dias, sem compromisso.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="sample-cta reveal">
+    <p><span data-fr><b>Intéressé ?</b> Écrivez-nous en précisant le type de données, le pays et la période : nous revenons vers vous sous 48 h pour convenir de l'envoi.</span><span data-en><b>Interested?</b> Write to us with your data type, country and period: we reply within 48 h to arrange the transfer.</span><span data-pt><b>Interessado?</b> Escreva-nos indicando o tipo de dados, o país e o período: respondemos em 48 h para combinar o envio.</span></p>
+    <a class="btn btn-primary" href="mailto:info@reportrade.com?subject=ReporTrade%20-%20rapport%20exemple&amp;body=Type%20de%20donn%C3%A9es%20%3A%20%0APays%20%3A%20%0AP%C3%A9riode%20%3A%20%0ALangue%20souhait%C3%A9e%20%3A%20%0A"><span data-fr>Demander mon rapport exemple</span><span data-en>Request my sample report</span><span data-pt>Pedir o meu relatório exemplo</span></a>
+  </div>
 </div></section>
 
 <!-- ===================== AUDIENCE ===================== -->
