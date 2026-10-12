@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ReporTrade : merci</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="mavologo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{--teal:#2DD4BF;--space0:#00060F;--cloud:#EAF2FB;--cloud-mut:#8DA4BC;--on-teal:#04231F}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:grid;place-items:center;font-family:'Inter',system-ui,sans-serif;background:var(--space0);color:var(--cloud);text-align:center;padding:24px}
+  .word{font-family:'Bricolage Grotesque',Georgia,serif;font-weight:800;font-size:22px;letter-spacing:-.04em}
+  .word .b{color:var(--teal)}
+  h1{font-family:'Bricolage Grotesque',Georgia,serif;font-size:clamp(32px,4.4vw,52px);font-weight:700;letter-spacing:-.03em;line-height:1.02;margin:28px 0 14px}
+  p{color:var(--cloud-mut);max-width:520px;margin:0 auto 32px;font-size:18.5px;line-height:1.5}
+  a.btn{display:inline-block;font-weight:600;text-decoration:none;padding:14px 26px;border-radius:999px;background:var(--teal);color:var(--on-teal)}
+  :focus-visible{outline:2.5px solid var(--teal);outline-offset:3px;border-radius:4px}
+  [data-en],[data-pt]{display:none}
+  body.en [data-fr],body.en [data-pt],body.pt [data-fr],body.pt [data-en]{display:none}
+  body.en [data-en],body.pt [data-pt]{display:revert}
+</style>
+</head>
+<body class="fr">
+<div>
+  <div class="word"><span>Repor</span><span class="b">Trade</span></div>
+  <h1><span data-fr>Merci, vous êtes sur la liste.</span><span data-en>Thank you, you're on the list.</span><span data-pt>Obrigado, está na lista.</span></h1>
+  <p><span data-fr>Nous vous écrirons dès que la veille commerciale ouvre, et peut-être avant pour vous inviter au test gratuit.</span><span data-en>We'll write to you as soon as the trade watch opens, and maybe sooner to invite you to the free trial.</span><span data-pt>Escreveremos assim que o observatório comercial abrir, e talvez antes, para o convidar para o teste gratuito.</span></p>
+  <a class="btn" href="index.html"><span data-fr>Retour au site</span><span data-en>Back to the site</span><span data-pt>Voltar ao site</span></a>
+</div>
+<script>
+const l = (()=>{ try{ return localStorage.getItem('rt-lang'); }catch(_){ return null; } })() || ((navigator.language||'').slice(0,2));
+if(['en','pt'].includes(l)){ document.body.classList.remove('fr'); document.body.classList.add(l); document.documentElement.lang = l; }
+</script>
+</body>
+</html>
