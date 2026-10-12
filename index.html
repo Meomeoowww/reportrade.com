@@ -496,15 +496,15 @@
     <p class="bot"><label>Ne pas remplir <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
 
     <div class="full">
-      <label for="wl-email"><span data-fr>E-mail professionnel</span><span data-en>Work email</span><span data-pt>E-mail profissional</span></label>
+      <label for="wl-email"><span data-t-fr="E-mail professionnel" data-t-en="Work email" data-t-pt="E-mail profissional">E-mail professionnel</span></label>
       <input id="wl-email" name="email" type="email" required autocomplete="email">
     </div>
     <div>
-      <label for="wl-org"><span data-fr>Organisation</span><span data-en>Organization</span><span data-pt>Organização</span></label>
+      <label for="wl-org"><span data-t-fr="Organisation" data-t-en="Organization" data-t-pt="Organização">Organisation</span></label>
       <input id="wl-org" name="organisation" type="text" required autocomplete="organization">
     </div>
     <div>
-      <label for="wl-type"><span data-fr>Vous êtes</span><span data-en>You are</span><span data-pt>Você é</span></label>
+      <label for="wl-type"><span data-t-fr="Vous êtes" data-t-en="You are" data-t-pt="Você é">Vous êtes</span></label>
       <select id="wl-type" name="actor" required>
         <option value="" data-t-fr="Choisir…" data-t-en="Choose…" data-t-pt="Escolher…">Choisir…</option>
         <option value="exporter" data-t-fr="Exportateur" data-t-en="Exporter" data-t-pt="Exportador">Exportateur</option>
@@ -517,11 +517,11 @@
       </select>
     </div>
     <div class="full">
-      <label for="wl-scope"><span data-fr>Pays et produits que vous suivez</span><span data-en>Countries and products you follow</span><span data-pt>Países e produtos que acompanha</span> <span class="opt"><span data-fr>(facultatif)</span><span data-en>(optional)</span><span data-pt>(opcional)</span></span></label>
+      <label for="wl-scope"><span data-t-fr="Pays et produits que vous suivez" data-t-en="Countries and products you follow" data-t-pt="Países e produtos que acompanha">Pays et produits que vous suivez</span> <span class="opt" data-t-fr="(facultatif)" data-t-en="(optional)" data-t-pt="(opcional)">(facultatif)</span></label>
       <textarea id="wl-scope" name="scope" data-p-fr="Ex. : cacao (SH 1801) vers l'UE et la Chine" data-p-en="E.g. cocoa (HS 1801) to the EU and China" data-p-pt="Ex.: cacau (SH 1801) para a UE e a China" placeholder="Ex. : cacao (SH 1801) vers l'UE et la Chine"></textarea>
     </div>
     <div>
-      <label for="wl-cadence"><span data-fr>Cadence souhaitée</span><span data-en>Preferred frequency</span><span data-pt>Frequência desejada</span> <span class="opt"><span data-fr>(facultatif)</span><span data-en>(optional)</span><span data-pt>(opcional)</span></span></label>
+      <label for="wl-cadence"><span data-t-fr="Cadence souhaitée" data-t-en="Preferred frequency" data-t-pt="Frequência desejada">Cadence souhaitée</span> <span class="opt" data-t-fr="(facultatif)" data-t-en="(optional)" data-t-pt="(opcional)">(facultatif)</span></label>
       <select id="wl-cadence" name="cadence">
         <option value="" data-t-fr="Choisir…" data-t-en="Choose…" data-t-pt="Escolher…">Choisir…</option>
         <option value="monthly" data-t-fr="Mensuelle" data-t-en="Monthly" data-t-pt="Mensal">Mensuelle</option>
@@ -529,7 +529,7 @@
       </select>
     </div>
     <div>
-      <label for="wl-budget"><span data-fr>Budget annuel envisagé</span><span data-en>Annual budget in mind</span><span data-pt>Orçamento anual previsto</span> <span class="opt"><span data-fr>(facultatif)</span><span data-en>(optional)</span><span data-pt>(opcional)</span></span></label>
+      <label for="wl-budget"><span data-t-fr="Budget annuel envisagé" data-t-en="Annual budget in mind" data-t-pt="Orçamento anual previsto">Budget annuel envisagé</span> <span class="opt" data-t-fr="(facultatif)" data-t-en="(optional)" data-t-pt="(opcional)">(facultatif)</span></label>
       <select id="wl-budget" name="budget">
         <option value="" data-t-fr="Choisir…" data-t-en="Choose…" data-t-pt="Escolher…">Choisir…</option>
         <option value="lt500" data-t-fr="Moins de 500 USD" data-t-en="Under USD 500" data-t-pt="Menos de 500 USD">Moins de 500 USD</option>
@@ -541,7 +541,7 @@
     </div>
     <div class="full consent">
       <input id="wl-consent" name="consent" type="checkbox" value="yes" required>
-      <label for="wl-consent" style="font-weight:400;color:var(--muted);margin:0"><span data-fr>J'accepte que Mavo (ReporTrade) me contacte au sujet de ce service. Je peux me désinscrire à tout moment. <a href="confidentialite.html">Politique de confidentialité</a></span><span data-en>I agree that Mavo (ReporTrade) may contact me about this service. I can unsubscribe at any time. <a href="confidentialite.html">Privacy policy</a></span><span data-pt>Aceito que a Mavo (ReporTrade) me contacte sobre este serviço. Posso cancelar a qualquer momento. <a href="confidentialite.html">Política de privacidade</a></span></label>
+      <label for="wl-consent" style="font-weight:400;color:var(--muted);margin:0"><span data-t-fr="J'accepte que Mavo (ReporTrade) me contacte au sujet de ce service. Je peux me désinscrire à tout moment." data-t-en="I agree that Mavo (ReporTrade) may contact me about this service. I can unsubscribe at any time." data-t-pt="Aceito que a Mavo (ReporTrade) me contacte sobre este serviço. Posso cancelar a qualquer momento.">J'accepte que Mavo (ReporTrade) me contacte au sujet de ce service. Je peux me désinscrire à tout moment.</span> <a href="confidentialite.html" data-t-fr="Politique de confidentialité" data-t-en="Privacy policy" data-t-pt="Política de privacidade">Politique de confidentialité</a></label>
     </div>
     <div class="full send">
       <button class="btn btn-primary" type="submit"><span data-fr>Rejoindre la liste d'attente</span><span data-en>Join the waitlist</span><span data-pt>Entrar na lista de espera</span></button>
