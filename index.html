@@ -255,6 +255,7 @@
     .stagger>*{opacity:1}
   }
 </style>
+<script defer src="https://cloud.umami.is/script.js" data-website-id="caefcc3c-693b-4ee3-bad8-e7edd5b7b512" data-domains="reportrade.com,www.reportrade.com"></script>
 </head>
 <body class="fr">
 
@@ -493,6 +494,10 @@
   <form class="wl-form reveal" name="veille-waitlist" method="POST" action="/merci.html" data-netlify="true" netlify-honeypot="bot-field">
     <input type="hidden" name="form-name" value="veille-waitlist">
     <input type="hidden" name="lang" id="wl-lang" value="fr">
+    <input type="hidden" name="utm_source" id="wl-utm_source" value="">
+    <input type="hidden" name="utm_medium" id="wl-utm_medium" value="">
+    <input type="hidden" name="utm_campaign" id="wl-utm_campaign" value="">
+    <input type="hidden" name="utm_content" id="wl-utm_content" value="">
     <p class="bot"><label>Ne pas remplir <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
 
     <div class="full">
@@ -544,7 +549,7 @@
       <label for="wl-consent" style="font-weight:400;color:var(--muted);margin:0"><span data-t-fr="J'accepte que Mavo (ReporTrade) me contacte au sujet de ce service. Je peux me désinscrire à tout moment." data-t-en="I agree that Mavo (ReporTrade) may contact me about this service. I can unsubscribe at any time." data-t-pt="Aceito que a Mavo (ReporTrade) me contacte sobre este serviço. Posso cancelar a qualquer momento.">J'accepte que Mavo (ReporTrade) me contacte au sujet de ce service. Je peux me désinscrire à tout moment.</span> <a href="confidentialite.html" data-t-fr="Politique de confidentialité" data-t-en="Privacy policy" data-t-pt="Política de privacidade">Politique de confidentialité</a></label>
     </div>
     <div class="full send">
-      <button class="btn btn-primary" type="submit"><span data-fr>Rejoindre la liste d'attente</span><span data-en>Join the waitlist</span><span data-pt>Entrar na lista de espera</span></button>
+      <button class="btn btn-primary" type="submit" data-umami-event="waitlist-submit"><span data-fr>Rejoindre la liste d'attente</span><span data-en>Join the waitlist</span><span data-pt>Entrar na lista de espera</span></button>
       <small><span data-fr>Aucun engagement. Pas de revente de vos données.</span><span data-en>No commitment. We never sell your data.</span><span data-pt>Sem compromisso. Nunca vendemos os seus dados.</span></small>
     </div>
   </form>
@@ -565,6 +570,20 @@
   <span class="copyright">© 2026 ReporTrade. <span data-fr>Tous droits réservés.</span><span data-en>All rights reserved.</span><span data-pt>Todos os direitos reservados.</span></span>
 </div></footer>
 
+<script>
+/* ---------- campaign attribution: UTM params -> hidden form fields ---------- */
+(()=>{
+  const keys = ['utm_source','utm_medium','utm_campaign','utm_content'];
+  const q = new URLSearchParams(location.search);
+  let saved = {};
+  try{ saved = JSON.parse(sessionStorage.getItem('rt-utm')||'{}'); }catch(_){}
+  if(keys.some(k=>q.get(k))){
+    saved = {}; keys.forEach(k=>{ if(q.get(k)) saved[k] = q.get(k).slice(0,100); });
+    try{ sessionStorage.setItem('rt-utm', JSON.stringify(saved)); }catch(_){}
+  }
+  keys.forEach(k=>{ const el = document.getElementById('wl-'+k); if(el && saved[k]) el.value = saved[k]; });
+})();
+</script>
 <script>
 /* ---------- language ---------- */
 const TITLES = {
